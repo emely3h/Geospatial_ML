@@ -32,4 +32,7 @@ To run this project, you will need the following:
 
 ## Usage
 
+Create an empty /data folder in the project root directory. Copy the two subfolders 'unflagged' and 'flags_applied' of the data folder into the project data folder.
+Execute main.py in /prepare_data
+
 To use this project, simply open the Jupyter Notebook and run the code cells.

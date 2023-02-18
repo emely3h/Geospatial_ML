@@ -1,2 +1,5 @@
 .venv
-/data
+data
+.ipynb_checkpoints
+.vscode
+.ipynb_checkpoints
