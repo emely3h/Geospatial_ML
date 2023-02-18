@@ -30,9 +30,10 @@ To run this project, you will need the following:
 - Jupyter Notebook
 - The packages listed in `requirements.txt`
 
-## Usage
+## Prepare Data
 
-Create an empty /data folder in the project root directory. Copy the two subfolders 'unflagged' and 'flags_applied' of the data folder into the project data folder.
-Execute main.py in /prepare_data
+To set up the project, follow these steps:
 
-To use this project, simply open the Jupyter Notebook and run the code cells.
+1. Create an empty `/data` folder in the project root directory.
+2. Copy the two subfolders `unflagged` and `flags_applied` from the original data folder into the project `/data` folder.
+3. Run `main.py` in the `/prepare_data` directory to prepare the data for analysis.
