@@ -3,7 +3,6 @@
 ## Overview
 
 The Geospatial ML project is a machine learning initiative developed by eomap, a company that studies and analyzes satellite images to make precise statements about various water quality parameters, water depth biodiversity, and many more. While most of the steps in this process are fully automated, a final review by a geographer is still required to ensure accuracy. This review involves flagging out certain parts of the image, such as cloud shadows, sun glint, and others that may affect the results.
-
 The aim of this project is to train a neural network to identify pixels that provide a valid end result with high probability. To achieve this goal, eomap has provided us with a large dataset of already flagged and unflagged images.
 
 ## Getting Started
@@ -30,6 +29,10 @@ To run this project, you will need the following:
 - Jupyter Notebook
 - The packages listed in `requirements.txt`
 
-## Usage
+## Prepare Data
 
-To use this project, simply open the Jupyter Notebook and run the code cells.
+To set up the project, follow these steps:
+
+1. Create an empty `/data` folder in the project root directory.
+2. Copy the two subfolders `unflagged` and `flags_applied` from the original data folder into the project `/data` folder.
+3. Run `main.py` in the `/prepare_data` directory to prepare the data for analysis.
