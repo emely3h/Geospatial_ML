@@ -3,7 +3,6 @@
 ## Overview
 
 The Geospatial ML project is a machine learning initiative developed by eomap, a company that studies and analyzes satellite images to make precise statements about various water quality parameters, water depth biodiversity, and many more. While most of the steps in this process are fully automated, a final review by a geographer is still required to ensure accuracy. This review involves flagging out certain parts of the image, such as cloud shadows, sun glint, and others that may affect the results.
-
 The aim of this project is to train a neural network to identify pixels that provide a valid end result with high probability. To achieve this goal, eomap has provided us with a large dataset of already flagged and unflagged images.
 
 ## Getting Started
