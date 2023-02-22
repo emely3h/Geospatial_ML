@@ -33,3 +33,19 @@ def separate_unflagged_rgb(src_dir, dest_dir):
             os.rename(old_folder_path, new_folder_name)
 
     print("Copied all unflagged folder with rgb image into a separate folder.")
+
+
+def rename_file(old_filename, new_filename, root):
+    file_path = os.path.join(root, old_filename)
+    new_file_path = os.path.join(root, new_filename)
+    os.rename(file_path, new_file_path)
+    print(f'Renamed {file_path} to {new_file_path}')
+
+
+def rename_files(folder_path):
+    for root, dirs, files in os.walk(folder_path):
+        for filename in files:
+            if filename.startswith('RGB'):
+                rename_file(filename, 'rgb.tif', root)
+            if filename.startswith('TUR'):
+                rename_file(filename, 'wq.tif', root)
