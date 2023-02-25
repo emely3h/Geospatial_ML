@@ -3,8 +3,8 @@ from PIL import Image
 from time import time
 from sys import argv
 
-# The file can be executed with the following command:
-# python split_to_tiles_2.py 128 128 # 128x128 tiles
+# The file can be executed with the following command to create a 128x128 tile:
+# python split_to_tiles_2.py 128 128
 
 Image.MAX_IMAGE_PIXELS = 933120000
 
