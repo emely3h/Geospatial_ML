@@ -25,9 +25,15 @@ def reshape_split(image: np.ndarray, kernel_size: tuple):
     img_height, img_width, channels = image.shape
     tile_height, tile_width = kernel_size
 
-    tiled_array = image.reshape(img_height // tile_height,
+    # pad image to be evenly divisible by tile size
+    h_pad = tile_height - img_height % tile_height
+    w_pad = tile_width - img_width % tile_width
+    pad_width = ((0, h_pad), (0, w_pad), (0, 0))
+    image = np.pad(image, pad_width, mode='edge')
+
+    tiled_array = image.reshape(image.shape[0] // tile_height,
                                 tile_height,
-                                img_width // tile_width,
+                                image.shape[1] // tile_width,
                                 tile_width,
                                 channels)
     tiled_array = tiled_array.swapaxes(1, 2)
