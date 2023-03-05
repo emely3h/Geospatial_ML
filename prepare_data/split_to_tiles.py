@@ -16,7 +16,7 @@ def fil_up_tile(tile, tile_size, third_dimension):
     return new_tile
 
 
-def split_image_into_tiles(array, tile_size, step_size):
+def split_image_into_tiles(array, tile_size, step_size, save_folder):
     result = []
     row_pixel, col_pixel, third_dim = array.shape
     row_index = 0
@@ -31,7 +31,7 @@ def split_image_into_tiles(array, tile_size, step_size):
             result.append(tile.tolist())
 
             img = Image.fromarray(np.uint8(tile.tolist()))
-            img.save(f'test_{counter}_{row_index}_{col_index}.png')
+            img.save(f'{data_path}{save_folder}splitted_{counter}_{row_index}_{col_index}.png')
             counter += 1
 
             col_index += step_size
@@ -49,7 +49,7 @@ def image_tiles_array(img_path, tile_size, step_size):
     return tiles
 
 
-test_x = image_tiles_array(f'{data_path}unflagged_rgb/2022_07_10/rgb.tif', 500, 490)
+test_x = image_tiles_array(f'{data_path}unflagged_rgb/2022_07_10/rgb.tif', 500, 490, 'unflagged_rgb/2022_07_10/')
 #test = image_tiles_array('../data/test_image.jpeg', 100, 90)
 
 def create_mask_array(img_path):
