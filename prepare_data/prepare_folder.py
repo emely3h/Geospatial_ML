@@ -57,10 +57,31 @@ def rename_files(folder_path):
             if filename.startswith('TUR'):
                 rename_file(filename, 'wq.tif', root)
 
+
+
+def generate_patch(img, patch_size, step):
+    is3d = len(img.shape) == 3
+    images = []
+    patch_shape = (patch_size, patch_size, 3) if is3d else (patch_size, patch_size)
+    patches_img = patchify(img, patch_shape, step=step)
+    for i in range(patches_img.shape[0]):
+        for j in range(patches_img.shape[1]):
+            patch = patches_img[i, j, 0]
+            patch = Image.fromarray(patch)
+            images.append({
+                'patch': patch,
+                'i': i,
+                'j': j,
+            })
+    return images
+
 # if the patch size is 256 and we want an overlap of 56, the step size would be 200
-def save_patches(root_directory, dest_folder_name="patches", patch_size=256, step=200, max_image_pixels = 933120000):
+def save_patches(root_directory, dest_folder_name="patches", patch_size=256, step=200, max_image_pixels=933120000):
     Image.MAX_IMAGE_PIXELS = max_image_pixels
     for path, subdirs, files in os.walk(root_directory):
+        if dest_folder_name in path:
+            return
+
         path_list = path.split('/')
         path_list.insert(2, dest_folder_name)
         dest_dir = '/'.join(path_list)
@@ -69,26 +90,24 @@ def save_patches(root_directory, dest_folder_name="patches", patch_size=256, ste
             if name.endswith('tif'):
                 file_path = os.path.join(path, name)
                 img = np.asarray(Image.open(file_path))
+                images = generate_patch(img, patch_size, step)
+                for image in images:
+                    patch = image['patch']
                 
-                if len(img.shape)==3:
-                    third_dim = img.shape[2]
-                    patches_img  = patchify(img, (patch_size, patch_size, third_dim), step=step)
-                    for i in range(patches_img.shape[0]):
-                        for j in range(patches_img.shape[1]):
-                            for k in range(third_dim):
-                                patch = patches_img[i,j,k,:,:]
-                                patch_name = f'{name}_{i}_{j}_{k}.tif'
-                                print(patch_name)
-                                patch_path = os.path.join(dest_dir, patch_name)
-                                Image.fromarray(patch).save(patch_path)
-                                print(f'Saved {patch_path}')
-                else:
-                    patches_img  = patchify(img, (patch_size, patch_size), step=step)
-                    for i in range(patches_img.shape[0]):
-                        for j in range(patches_img.shape[1]):
-                            patch = patches_img[i,j,:,:]
-                            patch_name = f'{name}_{i}_{j}.tif'
-                            print(patch_name)
-                            patch_path = os.path.join(dest_dir, patch_name)
-                            Image.fromarray(patch).save(patch_path)
-                            print(f'Saved {patch_path}')
+                    i = image['i']
+                    j = image['j']
+                    patch_name = f'{name}_{i}_{j}.tif'
+                    patch_path = os.path.join(dest_dir, patch_name)
+                    patch.save(patch_path)
+                    print(f'Saved {patch_path}')
+
+
+
+if __name__ == '__main__':
+    # root_directory = '../test_smaller_data/'
+    # save_patches(root_directory, dest_folder_name="patches", patch_size=10, step=10, max_image_pixels = 933120000)
+    img = np.asarray(Image.open('../test_smaller_data/flagged_applied/2021_10_03/wq.tif'))
+    # print(img.shape)
+    # patch = generate_patch(img, 256, 256)
+    # print(len(patch))
+    save_patches('../test_smaller_data', dest_folder_name="patches", patch_size=10, step=10, max_image_pixels = 933120000)
