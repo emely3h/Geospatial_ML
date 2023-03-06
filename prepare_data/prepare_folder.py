@@ -1,5 +1,8 @@
 import os
 from datetime import datetime
+import numpy as np
+from PIL import Image
+from patchify import patchify
 
 
 def rename_folders(dir_path):
@@ -53,3 +56,39 @@ def rename_files(folder_path):
                 rename_file(filename, 'rgb.tif', root)
             if filename.startswith('TUR'):
                 rename_file(filename, 'wq.tif', root)
+
+# if the patch size is 256 and we want an overlap of 56, the step size would be 200
+def save_patches(root_directory, dest_folder_name="patches", patch_size=256, step=200, max_image_pixels = 933120000):
+    Image.MAX_IMAGE_PIXELS = max_image_pixels
+    for path, subdirs, files in os.walk(root_directory):
+        path_list = path.split('/')
+        path_list.insert(2, dest_folder_name)
+        dest_dir = '/'.join(path_list)
+        os.makedirs(dest_dir, exist_ok=True)
+        for name in files:
+            if name.endswith('tif'):
+                file_path = os.path.join(path, name)
+                img = np.asarray(Image.open(file_path))
+                
+                if len(img.shape)==3:
+                    third_dim = img.shape[2]
+                    patches_img  = patchify(img, (patch_size, patch_size, third_dim), step=step)
+                    for i in range(patches_img.shape[0]):
+                        for j in range(patches_img.shape[1]):
+                            for k in range(third_dim):
+                                patch = patches_img[i,j,k,:,:]
+                                patch_name = f'{name}_{i}_{j}_{k}.tif'
+                                print(patch_name)
+                                patch_path = os.path.join(dest_dir, patch_name)
+                                Image.fromarray(patch).save(patch_path)
+                                print(f'Saved {patch_path}')
+                else:
+                    patches_img  = patchify(img, (patch_size, patch_size), step=step)
+                    for i in range(patches_img.shape[0]):
+                        for j in range(patches_img.shape[1]):
+                            patch = patches_img[i,j,:,:]
+                            patch_name = f'{name}_{i}_{j}.tif'
+                            print(patch_name)
+                            patch_path = os.path.join(dest_dir, patch_name)
+                            Image.fromarray(patch).save(patch_path)
+                            print(f'Saved {patch_path}')
