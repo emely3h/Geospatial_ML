@@ -20,7 +20,9 @@ def jacard_coef(y_true, y_pred):
 
 
 ################################################################
-def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1):
+def multi_unet_model(
+    n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1, dropout=0.1
+):
     # Build the model
     inputs = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
     # s = Lambda(lambda x: x / 255)(inputs)   #No need for this if we normalize our inputs beforehand
@@ -30,7 +32,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
     c1 = Conv2D(
         16, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(s)
-    c1 = Dropout(0.2)(c1)  # Original 0.1
+    c1 = Dropout(dropout)(c1)  # Original 0.1
     c1 = Conv2D(
         16, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(c1)
@@ -39,7 +41,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
     c2 = Conv2D(
         32, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(p1)
-    c2 = Dropout(0.2)(c2)  # Original 0.1
+    c2 = Dropout(dropout)(c2)  # Original 0.1
     c2 = Conv2D(
         32, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(c2)
@@ -48,7 +50,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
     c3 = Conv2D(
         64, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(p2)
-    c3 = Dropout(0.2)(c3)
+    c3 = Dropout(dropout)(c3)
     c3 = Conv2D(
         64, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(c3)
@@ -57,7 +59,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
     c4 = Conv2D(
         128, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(p3)
-    c4 = Dropout(0.2)(c4)
+    c4 = Dropout(dropout)(c4)
     c4 = Conv2D(
         128, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(c4)
@@ -77,7 +79,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
     c6 = Conv2D(
         128, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(u6)
-    c6 = Dropout(0.2)(c6)
+    c6 = Dropout(dropout)(c6)
     c6 = Conv2D(
         128, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(c6)
@@ -87,7 +89,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
     c7 = Conv2D(
         64, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(u7)
-    c7 = Dropout(0.2)(c7)
+    c7 = Dropout(dropout)(c7)
     c7 = Conv2D(
         64, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(c7)
@@ -97,7 +99,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
     c8 = Conv2D(
         32, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(u8)
-    c8 = Dropout(0.2)(c8)  # Original 0.1
+    c8 = Dropout(dropout)(c8)  # Original 0.1
     c8 = Conv2D(
         32, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(c8)
@@ -107,7 +109,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1)
     c9 = Conv2D(
         16, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(u9)
-    c9 = Dropout(0.2)(c9)  # Original 0.1
+    c9 = Dropout(dropout)(c9)  # Original 0.1
     c9 = Conv2D(
         16, (3, 3), activation="relu", kernel_initializer="he_normal", padding="same"
     )(c9)
