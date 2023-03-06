@@ -75,17 +75,22 @@ def generate_patch(img, patch_size, step):
             })
     return images
 
+def create_nested_dir(path, new_dir, where=2):  
+    path_list = path.split('/')
+    path_list.insert(where, new_dir)
+    dest_dir = '/'.join(path_list)
+    os.makedirs(dest_dir, exist_ok=True)
+    return dest_dir
+
 # if the patch size is 256 and we want an overlap of 56, the step size would be 200
-def save_patches(root_directory, dest_folder_name="patches", patch_size=256, step=200, max_image_pixels=933120000):
+def save_patches(root_directory, new_dir="patches", patch_size=256, step=200, max_image_pixels=933120000):
     Image.MAX_IMAGE_PIXELS = max_image_pixels
-    for path, subdirs, files in os.walk(root_directory):
-        if dest_folder_name in path:
+    for path, _, files in os.walk(root_directory):
+        if new_dir in path:
             return
 
-        path_list = path.split('/')
-        path_list.insert(2, dest_folder_name)
-        dest_dir = '/'.join(path_list)
-        os.makedirs(dest_dir, exist_ok=True)
+        dest_dir = create_nested_dir(path, new_dir, 2)
+
         for name in files:
             if name.endswith('tif'):
                 file_path = os.path.join(path, name)
@@ -100,14 +105,3 @@ def save_patches(root_directory, dest_folder_name="patches", patch_size=256, ste
                     patch_path = os.path.join(dest_dir, patch_name)
                     patch.save(patch_path)
                     print(f'Saved {patch_path}')
-
-
-
-if __name__ == '__main__':
-    # root_directory = '../test_smaller_data/'
-    # save_patches(root_directory, dest_folder_name="patches", patch_size=10, step=10, max_image_pixels = 933120000)
-    img = np.asarray(Image.open('../test_smaller_data/flagged_applied/2021_10_03/wq.tif'))
-    # print(img.shape)
-    # patch = generate_patch(img, 256, 256)
-    # print(len(patch))
-    save_patches('../test_smaller_data', dest_folder_name="patches", patch_size=10, step=10, max_image_pixels = 933120000)
