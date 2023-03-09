@@ -27,7 +27,7 @@ def multi_unet_model(n_classes=4, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1,
     # Contraction path
 
     # e.g., (width, height) = (128, 128)
-    # 128x128x1(input) -> 128x128x16(c1)
+    # 128x128x3(input) -> 128x128x16(c1)
     c1 = Conv2D(16, (3, 3), activation="relu",
                 kernel_initializer="he_normal", padding="same")(inputs)
     c1 = Dropout(dropout)(c1)  # Original 0.1
