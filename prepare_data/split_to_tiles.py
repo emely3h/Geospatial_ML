@@ -1,55 +1,85 @@
 import numpy as np
 from PIL import Image
-import PIL
+import os
+from patchify import patchify
 
 
-def fil_up_tile(tile, tile_size, third_dimension):
-    if tile.shape[0] == tile_size and tile.shape[1] == tile_size:
-        return tile
-    new_tile = np.zeros((tile_size, tile_size, third_dimension))
-
-    new_tile[:tile.shape[0], :tile.shape[1], :] = tile
-    return new_tile
-
-
-def split_image_into_tiles(array, tile_size, step_size):
-    result = []
-    row_pixel, col_pixel, third_dim = array.shape
-    row_index = 0
-    print(f'Image shape: {array.shape}')
-    while row_index < row_pixel:
-        print(f'Current row index: {row_index}')
-        col_index = 0
-        while col_index < col_pixel:
-            tile = array[row_index:row_index + tile_size, col_index:col_index + tile_size, :]
-            tile = fil_up_tile(tile, tile_size, third_dim)
-            result.append(tile.tolist())
-            col_index += step_size
-        row_index += step_size
-
-    return result
+def generate_tiles(img, tile_size, step):
+    tile_dicts = []
+    tile_shape = (tile_size, tile_size)
+    is3d = len(img.shape) == 3
+    if is3d:
+        tile_shape = (tile_size, tile_size, img.shape[2])
+    tiles = patchify(img, tile_shape, step=step)
+    for row in range(tiles.shape[0]):
+        for column in range(tiles.shape[1]):
+            tile = tiles[row, column]
+            if is3d:
+                tile = tiles[row, column, 0]
+            tile = Image.fromarray(tile)
+            tile_dicts.append(
+                {
+                    "tile": tile,
+                    "row": row * step,
+                    "column": column * step,
+                }
+            )
+    return tile_dicts
 
 
-def image_tiles_array(img_path, tile_size, step_size):
-    PIL.Image.MAX_IMAGE_PIXELS = 191357533
-    img = np.array(Image.open(img_path))
-    print(img.shape)
-    tiles = split_image_into_tiles(img, tile_size, step_size)
-    print(f'finished splitting up img {img_path}')
-    return tiles
+def add_padding(img, tile_size, step):
+    img_height = img.shape[0]
+    img_width = img.shape[1]
+
+    w_pad = (img_width - tile_size) % step
+    if w_pad != 0:
+        w_pad = tile_size - w_pad
+
+    h_pad = (img_height - tile_size) % step
+    if h_pad != 0:
+        h_pad = tile_size - h_pad
+
+    pad_width = ((0, h_pad), (0, w_pad))
+    is3d = len(img.shape) == 3
+    if is3d:
+        pad_width = ((0, h_pad), (0, w_pad), (0, 0))
+    return np.pad(img, pad_width, 'constant')
 
 
-#test_x = image_tiles_array('../data/unflagged_rgb/2022_07_10/rgb.tif', 128, 90)
+def create_tiles(
+    folder_path,
+    tile_size=256,
+    step=200,
+    max_image_pixels=933120000,
+):
+    Image.MAX_IMAGE_PIXELS = max_image_pixels
 
-def create_mask_array(img_path):
-    PIL.Image.MAX_IMAGE_PIXELS = 191357533
-    img_array = np.array(Image.open(img_path))
-    print(img_array.shape)
-    mask_array = np.zeros(img_array)
-    for row, idx in enumerate(img_array):
-        for col, idx in enumerate():
-            pass
-            # if not 253, 255 or 0 pixel is valid otherwise invalid => what does 254 mean?
-    return mask_array
+    for file in os.listdir(folder_path):
+        if file == "wq.tif" or file == "rgb.tif":
+            dest_dir = f'{folder_path}/tiles_{file.split(".")[0]}'
+            if not os.path.exists(dest_dir):
+                os.makedirs(dest_dir)
 
-test_y = create_mask_array('../data/flags_applied/2022_07_10/wq.tif')
+            img = np.asarray(Image.open(f'{folder_path}/{file}'))
+
+            img = add_padding(img, tile_size, step)
+
+            tile_dicts = generate_tiles(img, tile_size, step)
+            for tile_dict in tile_dicts:
+                tile = tile_dict["tile"]
+                row = tile_dict["row"]
+                column = tile_dict["column"]
+
+                tile_name = f'{file.split(".")[0]}_{row}_{column}.tif'
+                tile_path = os.path.join(dest_dir, tile_name)
+                tile.save(tile_path)
+                print(f"Saved {tile_path}")
+
+
+def delete_tiles_folder(path):
+    for root, dirs, files in os.walk(path):
+        for dir_name in dirs:
+            if dir_name.startswith('tiles'):
+                folder_path = os.path.join(root, dir_name)
+                print(f"Deleting folder: {folder_path}")
+                os.rmdir(folder_path)

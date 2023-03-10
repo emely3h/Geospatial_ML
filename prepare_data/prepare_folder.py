@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-import numpy as np
 from PIL import Image
 from patchify import patchify
 
@@ -76,42 +75,3 @@ def generate_patch(img, patch_size, step):
                 }
             )
     return images
-
-
-def create_nested_dir(path, new_dir, where=2):
-    path_list = path.split("/")
-    path_list.insert(where, new_dir)
-    dest_dir = "/".join(path_list)
-    os.makedirs(dest_dir, exist_ok=True)
-    return dest_dir
-
-
-# if the patch size is 256 and we want an overlap of 56, the step size would be 200
-def save_patches(
-    root,
-    new_dir="patches",
-    patch_size=256,
-    step=200,
-    max_image_pixels=933120000,
-):
-    Image.MAX_IMAGE_PIXELS = max_image_pixels
-    # for path, _, files in os.walk(root_directory):
-    # if new_dir in path:
-    # return
-
-    dest_dir = create_nested_dir(root, new_dir, 2)
-
-    for name in root:
-        if name.endswith("tif"):
-            file_path = os.path.join(root, name)
-            img = np.asarray(Image.open(file_path))
-            images = generate_patch(img, patch_size, step)
-            for image in images:
-                patch = image["patch"]
-
-                row = image["row"]
-                column = image["column"]
-                patch_name = f"{name}_{row}_{column}.tif"
-                patch_path = os.path.join(dest_dir, patch_name)
-                patch.save(patch_path)
-                print(f"Saved {patch_path}")
