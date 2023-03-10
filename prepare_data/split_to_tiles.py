@@ -7,14 +7,14 @@ from patchify import patchify
 def generate_tiles(img, tile_size, step):
     tile_dicts = []
     tile_shape = (tile_size, tile_size)
-    is3D = len(img.shape) == 3
-    if is3D:
+    is3d = len(img.shape) == 3
+    if is3d:
         tile_shape = (tile_size, tile_size, img.shape[2])
     tiles = patchify(img, tile_shape, step=step)
     for row in range(tiles.shape[0]):
         for column in range(tiles.shape[1]):
             tile = tiles[row, column]
-            if is3D:
+            if is3d:
                 tile = tiles[row, column, 0]
             tile = Image.fromarray(tile)
             tile_dicts.append(
@@ -27,8 +27,25 @@ def generate_tiles(img, tile_size, step):
     return tile_dicts
 
 
-# if the tile size is 256 and we want an overlap of 56, the step size would be 200
-# Todo add padding
+def add_padding(img, tile_size, step):
+    img_height = img.shape[0]
+    img_width = img.shape[1]
+
+    w_pad = (img_width - tile_size) % step
+    if w_pad != 0:
+        w_pad = tile_size - w_pad
+
+    h_pad = (img_height - tile_size) % step
+    if h_pad != 0:
+        h_pad = tile_size - h_pad
+
+    pad_width = ((0, h_pad), (0, w_pad))
+    is3d = len(img.shape) == 3
+    if is3d:
+        pad_width = ((0, h_pad), (0, w_pad), (0, 0))
+    return np.pad(img, pad_width, 'constant')
+
+
 def create_tiles(
     folder_path,
     tile_size=256,
@@ -44,7 +61,9 @@ def create_tiles(
                 os.makedirs(dest_dir)
 
             img = np.asarray(Image.open(f'{folder_path}/{file}'))
-            # img = img.reshape((img.shape[0], -1))
+
+            img = add_padding(img, tile_size, step)
+
             tile_dicts = generate_tiles(img, tile_size, step)
             for tile_dict in tile_dicts:
                 tile = tile_dict["tile"]
@@ -57,5 +76,10 @@ def create_tiles(
                 print(f"Saved {tile_path}")
 
 
-def delete_all_tiles():
-    pass
+def delete_tiles_folder(path):
+    for root, dirs, files in os.walk(path):
+        for dir_name in dirs:
+            if dir_name.startswith('tiles'):
+                folder_path = os.path.join(root, dir_name)
+                print(f"Deleting folder: {folder_path}")
+                os.rmdir(folder_path)
