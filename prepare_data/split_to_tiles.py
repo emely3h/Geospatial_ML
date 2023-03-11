@@ -60,21 +60,28 @@ def create_tiles(
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
 
+            print(f'File: {file}')
             img = np.asarray(Image.open(f'{folder_path}/{file}'))
+            print(f'array shape before padding: {img.shape}')
 
             img = add_padding(img, tile_size, step)
+            print(f'array shape after padding: {img.shape}')
 
             tile_dicts = generate_tiles(img, tile_size, step)
             for tile_dict in tile_dicts:
-                tile = tile_dict["tile"]
-                row = tile_dict["row"]
-                column = tile_dict["column"]
+                try:
+                    tile = tile_dict["tile"]
+                    row = tile_dict["row"]
+                    column = tile_dict["column"]
 
-                tile_name = f'{file.split(".")[0]}_{row}_{column}.tif'
-                tile_path = os.path.join(dest_dir, tile_name)
+                    tile_name = f'{file.split(".")[0]}_{row}_{column}.tif'
+                    tile_path = os.path.join(dest_dir, tile_name)
 
-                tile.save(tile_path)
-                print(f"Saved {tile_path}")
+                    tile.save(tile_path)
+                    # print(f"Saved {tile_path}")
+                except:
+                    raise Exception(f'Error when saving tile {tile_path}')
+
 
 
 def delete_tiles_folder(path):

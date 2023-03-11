@@ -20,13 +20,12 @@ def check_save_tile(img):
 
 def delete_tile(tile_name, folder_name):
     found_file = False
-    for root, dirs, files in os.walk(folder_name):
-        for filename in files:
-            if fnmatch.fnmatch(filename, f'*{tile_name}*'):
-                file_path = os.path.join(root, filename)
-                os.remove(file_path)
-                found_file = True
-                print(f"Found and deleted file '{file_path}'")
+    for filename in os.listdir(folder_name):
+        if fnmatch.fnmatch(filename, f'*{tile_name}.*'): #Todo fix error
+            file_path = os.path.join(folder_name, filename)
+            os.remove(file_path)
+            found_file = True
+            print(f"Found and deleted file '{file_path}'")
     if not found_file:
         raise Exception(f'Tried to delete tile {tile_name} in folder {folder_name}')
 
@@ -70,9 +69,12 @@ def create_mask(root_folder, max_image_pixels):
 
 
 def prepare(folder_path, max_image_pixels=933120000):
-    tiles_to_delete = create_mask(folder_path, max_image_pixels)
-    np.save(f'{folder_path}/tiles_to_delete.npy', tiles_to_delete)
+    #tiles_to_delete = create_mask(folder_path, max_image_pixels)
+    #np.save(f'{folder_path}/tiles_to_delete.npy', tiles_to_delete)
     tiles_to_delete = np.load(f'{folder_path}/tiles_to_delete.npy')
+    print(len(tiles_to_delete))
+    print(tiles_to_delete)
+    #return set(tiles_to_delete)
     delete_tiles(tiles_to_delete, folder_path)
 
     # Todo check if all directories have same amount of tiles
