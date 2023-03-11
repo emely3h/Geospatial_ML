@@ -1,7 +1,5 @@
 import os
 from datetime import datetime
-from PIL import Image
-from patchify import patchify
 
 
 def rename_folders(dir_path):
@@ -55,23 +53,3 @@ def rename_files(folder_path):
                 rename_file(filename, "rgb.tif", root)
             if filename.startswith("TUR"):
                 rename_file(filename, "wq.tif", root)
-
-
-def generate_patch(img, patch_size, step):
-    is3d = len(img.shape) == 3
-    images = []
-    patch_shape = (patch_size, patch_size, 3) if is3d else (
-        patch_size, patch_size)
-    patches_img = patchify(img, patch_shape, step=step)
-    for row in range(patches_img.shape[0]):
-        for column in range(patches_img.shape[1]):
-            patch = patches_img[row, column, 0]
-            patch = Image.fromarray(patch)
-            images.append(
-                {
-                    "patch": patch,
-                    "row": row,
-                    "column": column,
-                }
-            )
-    return images
