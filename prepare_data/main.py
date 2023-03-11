@@ -1,5 +1,6 @@
 from prepare_folder import rename_folders, separate_unflagged_rgb, rename_files, unite_unflagged_flagged
 from split_to_tiles import create_tiles
+from create_mask import prepare
 
 
 def reformat_folders():
@@ -17,11 +18,12 @@ def reformat_folders():
 
 # reformat_folders()
 
-root_directory = "../data/data_rgb/2022_06_20"
+root_directory = "../data2/data_rgb/2022_06_20"
 # root_directory = "../data/test"
 # if the patch size is 250 and we want an overlap of 50, the step size would be 200
 tile_size = 250
 step_size = 240
 max_image_pixels = 933120000
 
-# create_tiles(root_directory, tile_size, step_size, max_image_pixels)
+#create_tiles(root_directory, tile_size, step_size, max_image_pixels)
+prepare(root_directory)

@@ -55,7 +55,7 @@ def create_tiles(
     Image.MAX_IMAGE_PIXELS = max_image_pixels
 
     for file in os.listdir(folder_path):
-        if file == "wq.tif" or file == "rgb.tif":
+        if file == "wq_flags_applied.tif" or file == "wq_unflagged.tif" or file == "rgb.tif":
             dest_dir = f'{folder_path}/tiles_{file.split(".")[0]}'
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
@@ -72,6 +72,7 @@ def create_tiles(
 
                 tile_name = f'{file.split(".")[0]}_{row}_{column}.tif'
                 tile_path = os.path.join(dest_dir, tile_name)
+
                 tile.save(tile_path)
                 print(f"Saved {tile_path}")
 
