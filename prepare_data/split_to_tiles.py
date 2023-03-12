@@ -47,10 +47,10 @@ def add_padding(img, tile_size, step):
 
 
 def create_tiles(
-    folder_path,
-    tile_size=256,
-    step=200,
-    max_image_pixels=933120000,
+        folder_path,
+        tile_size=256,
+        step=200,
+        max_image_pixels=933120000,
 ):
     Image.MAX_IMAGE_PIXELS = max_image_pixels
 
@@ -78,10 +78,9 @@ def create_tiles(
                     tile_path = os.path.join(dest_dir, tile_name)
 
                     tile.save(tile_path)
-                    # print(f"Saved {tile_path}")
+                    print(f"Saved {tile_path}")
                 except:
                     raise Exception(f'Error when saving tile {tile_path}')
-
 
 
 def delete_tiles_folder(path):

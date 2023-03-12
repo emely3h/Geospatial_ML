@@ -17,17 +17,6 @@ def reformat_folders():
     unite_unflagged_flagged('../data/flags_applied/', '../data/unflagged', '../data/data_without_rgb')
 
 
-#reformat_folders()
-
-root_directory = "../data/data_rgb/2022_06_20"
-# root_directory = "../data/test"
-# if the patch size is 250 and we want an overlap of 50, the step size would be 200
-tile_size = 250
-step_size = 240
-max_image_pixels = 933120000
-
-#create_tiles(root_directory, tile_size, step_size, max_image_pixels)
-
 def count_files_in_directory(directory):
     file_count = 0
     for filename in os.listdir(directory):
@@ -67,12 +56,7 @@ def get_wq_flagged(wq_folder):
     return wq
 
 
-
-
-
-to_delete_set = prepare(root_directory)
-
-def test_splitting():
+def test_splitting(to_delete_set=None):
     print(count_files_in_directory(f'{root_directory}/tiles_rgb'))
     print(count_files_in_directory(f'{root_directory}/tiles_wq_flags_applied'))
     print(count_files_in_directory(f'{root_directory}/tiles_wq_unflagged'))
@@ -84,15 +68,31 @@ def test_splitting():
     print(len(rgb_set))
     print(len(wq_flags))
     print(len(wq_unflagged))
-    print(len(to_delete_set))
+    if to_delete_set:
+        print(len(to_delete_set))
 
     print(rgb_set == wq_flags)
     print(rgb_set == wq_unflagged)
     print(wq_flags == wq_unflagged)
 
-    print(to_delete_set.issubset(rgb_set))
-    print(to_delete_set.issubset(wq_unflagged))
-    print(to_delete_set.issubset(wq_flags))
+    if to_delete_set:
+        print(to_delete_set.issubset(rgb_set))
+        print(to_delete_set.issubset(wq_unflagged))
+        print(to_delete_set.issubset(wq_flags))
+
+
+root_directory = "../data/data_rgb/2022_06_20"
+# root_directory = "../data/test"
+# if the patch size is 250 and we want an overlap of 50, the step size would be 200
+tile_size = 250
+step_size = 240
+max_image_pixels = 933120000
+
+to_delete_set = prepare(root_directory)
 
 #test_splitting()
+
+#reformat_folders()
+
+#create_tiles(root_directory, tile_size, step_size, max_image_pixels)
 
