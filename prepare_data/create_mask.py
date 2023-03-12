@@ -30,7 +30,7 @@ def delete_tile(tile_name, folder_name):
 
 
 def delete_tiles(tiles_to_delete, folder):
-    wq_folder = os.path.join(f'{folder}/tiles_wq_unflagged')
+    wq_folder = os.path.join(f'{folder}/tiles_wq_flags_applied')
     rgb_folder = os.path.join(f'{folder}/tiles_rgb')
     for tile in tiles_to_delete:
         delete_tile(tile, wq_folder)
@@ -40,7 +40,7 @@ def delete_tiles(tiles_to_delete, folder):
 # folder_path always date_folder like data/data_rgb/2022_06_20 (without / in the end)
 def create_mask(root_folder, max_image_pixels):
     Image.MAX_IMAGE_PIXELS = max_image_pixels
-    wq_flagged_folder = f'{root_folder}/tiles_wq_flags_applied'
+    wq_unflagged_folder = f'{root_folder}/tiles_wq_unflagged'
     mask_folder = f'{root_folder}/mask_wq'
     tiles_to_delete = []
 
@@ -49,10 +49,10 @@ def create_mask(root_folder, max_image_pixels):
 
     counter = 0
 
-    for filename in os.listdir(wq_flagged_folder):
+    for filename in os.listdir(wq_unflagged_folder):
         print(f'Counter: {counter}')
         counter += 1
-        file_path = os.path.join(wq_flagged_folder, filename)
+        file_path = os.path.join(wq_unflagged_folder, filename)
         img = np.asarray(Image.open(file_path)).copy()
         img = label_pixels(img)
         if check_save_tile(img):
