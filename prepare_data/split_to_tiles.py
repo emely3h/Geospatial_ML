@@ -83,10 +83,10 @@ def create_tiles(
                     raise Exception(f'Error when saving tile {tile_path}')
 
 
-def delete_tiles_folder(path):
+def delete_tiles_mask_folder(path):
     for root, dirs, files in os.walk(path):
         for dir_name in dirs:
-            if dir_name.startswith('tiles'):
+            if dir_name.startswith('tiles') or dir_name.startswith('mask'):
                 folder_path = os.path.join(root, dir_name)
                 print(f"Deleting folder: {folder_path}")
                 os.rmdir(folder_path)

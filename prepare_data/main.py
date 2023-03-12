@@ -88,11 +88,24 @@ tile_size = 250
 step_size = 240
 max_image_pixels = 933120000
 
-to_delete_set = prepare(root_directory)
-
-#test_splitting()
-
 #reformat_folders()
 
 #create_tiles(root_directory, tile_size, step_size, max_image_pixels)
+
+#test_splitting()
+
+to_delete_set = prepare(root_directory)
+
+"""
+for every entry in rgb
+- load image 
+- convert image to numpy array
+- load associated wq_unflagged image
+- concatenate arrays
+- append saved array to X
+- laod associated mask array
+- append array to Y
+at the end of folder save X and Y
+"""
+
 
