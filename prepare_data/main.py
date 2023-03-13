@@ -94,7 +94,45 @@ max_image_pixels = 933120000
 
 #test_splitting()
 
-to_delete_set = prepare(root_directory)
+#to_delete_set = prepare(root_directory)
+
+import numpy as np
+from PIL import Image
+
+def load_data_x_y(root_directory):
+    x = []
+    y = []
+    rgb_folder = os.path.join(root_directory, 'tiles_rgb')
+    for tile_name in os.listdir(rgb_folder):
+        rgb_tile_path = os.path.join(rgb_folder, tile_name)
+        tile_array_rgb = np.asarray(Image.open(rgb_tile_path))
+        tile_name_split = tile_name.split('_')
+        row_col = tile_name_split[1] + '_' + tile_name_split[2].split('.')[0]
+        wq_tile_path = f'{root_directory}/tiles_wq_unflagged/wq_unflagged_{row_col}.tif'
+        mask_tile_path = f'{root_directory}/tiles_wq_unflagged/wq_unflagged_{row_col}.tif'
+        tile_array_wq = np.asarray(Image.open(wq_tile_path))
+        width, height = tile_array_wq.shape
+        x_array = np.zeros((width, height, 5))
+        # Copy the first 4 channels of the 4-channel image into the new 5-channel image
+        x_array[..., :4] = tile_array_rgb
+
+        # Copy the 1-channel image into the new 5-channel image as the fifth channel
+        x_array[..., 4] = tile_array_wq
+
+        x.append(x_array)
+
+        y.append(np.load(f'{root_directory}/mask_wq/wq_flags_applied_{row_col}.npy'))
+    x_numpy = np.array(x)
+    np.save(os.path.join(root_directory, 'x_input.npy'), x_numpy)
+
+    y_numpy = np.array(y)
+    np.save(os.path.join(root_directory, 'y_input.npy'), y_numpy)
+
+    print(f'X_input array shape: {x_numpy.shape}')
+    print(f'Y_input array shape: {y_numpy.shape}')
+
+load_data_x_y(root_directory)
+
 
 """
 for every entry in rgb

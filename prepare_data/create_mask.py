@@ -81,7 +81,7 @@ def filter_tiles(root_folder, max_image_pixels):
 
 
 def prepare(folder_path, max_image_pixels=933120000):
-    #create_mask(folder_path, max_image_pixels)
-    #tiles_to_delete = filter_tiles(folder_path, max_image_pixels)
-    tiles_to_delete = np.load(f'{folder_path}/tiles_to_delete.npy')
+    create_mask(folder_path, max_image_pixels)
+    tiles_to_delete = filter_tiles(folder_path, max_image_pixels)
+    #tiles_to_delete = np.load(f'{folder_path}/tiles_to_delete.npy')
     delete_tiles(tiles_to_delete, folder_path)
