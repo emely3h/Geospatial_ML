@@ -111,7 +111,7 @@ def multi_unet_model(n_classes=3, IMG_HEIGHT=256, IMG_WIDTH=256, IMG_CHANNELS=1,
     return model
 
 
-def unet_2d(input_shape=(256, 256, 1), num_classes=2):
+def unet_2d(input_shape, num_classes):
 
     # Define the input layer
     inputs = Input(input_shape)
