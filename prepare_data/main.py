@@ -10,16 +10,16 @@ data_path = os.environ.get('DATA_PATH')
 
 
 def reformat_folders():
-    rename_folders('../data/unflagged')
-    rename_folders('../data/flags_applied')
-    separate_unflagged_rgb('../data/unflagged/', '../data/unflagged_rgb/')
-    separate_unflagged_rgb('../data/flags_applied/', '../data/flags_applied_rgb/')
-    rename_files('../data/unflagged_rgb/')
-    rename_files('../data/flags_applied/')
-    rename_files('../data/flags_applied_rgb/')
-    rename_files('../data/unflagged/')
-    unite_unflagged_flagged('../data/flags_applied_rgb/', '../data/unflagged_rgb/', '../data/data_rgb')
-    unite_unflagged_flagged('../data/flags_applied/', '../data/unflagged', '../data/data_without_rgb')
+    rename_folders(f'{data_path}/unflagged')
+    rename_folders(f'{data_path}/flags_applied')
+    separate_unflagged_rgb(f'{data_path}/unflagged/', f'{data_path}/unflagged_rgb/')
+    separate_unflagged_rgb(f'{data_path}/flags_applied/', f'{data_path}/flags_applied_rgb/')
+    rename_files(f'{data_path}/unflagged_rgb/')
+    rename_files(f'{data_path}/flags_applied/')
+    rename_files(f'{data_path}/flags_applied_rgb/')
+    rename_files(f'{data_path}/unflagged/')
+    unite_unflagged_flagged(f'{data_path}/flags_applied_rgb/', f'{data_path}/unflagged_rgb/', f'{data_path}/data_rgb')
+    unite_unflagged_flagged(f'{data_path}/flags_applied/', f'{data_path}/unflagged', f'{data_path}/data_without_rgb')
 
 
 def count_files_in_directory(directory):
@@ -86,7 +86,7 @@ def test_splitting(to_delete_set=None):
         print(to_delete_set.issubset(wq_flags))
 
 
-root_directory = "../data/data_rgb/2022_06_20"
+root_directory = f'{data_path}/data_rgb/2022_06_20'
 # root_directory = "../data/test"
 # if the patch size is 250 and we want an overlap of 50, the step size would be 200
 tile_size = 256
