@@ -1,8 +1,12 @@
 from prepare_folder import rename_folders, separate_unflagged_rgb, rename_files, unite_unflagged_flagged
 from split_to_tiles import create_tiles
-from create_mask import prepare
+from filter_tiles import filter_useful_tiles
 import os
 from save_as_array import save_data_x_y
+from dotenv import load_dotenv
+load_dotenv()
+
+data_path = os.environ.get('DATA_PATH')
 
 
 def reformat_folders():
@@ -99,10 +103,10 @@ max_image_pixels = 933120000
 #test_splitting()
 
 # deletes tiles that contain only useless pixels
-#to_delete_set = prepare(root_directory)
+#to_delete_set = filter_useful_tiles(root_directory)
 
 # saves final input data (X = input images and y = mask images) as 2 separate numpy arrays
-#save_data_x_y(root_directory)
+save_data_x_y(root_directory)
 
 
 
