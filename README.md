@@ -38,6 +38,8 @@ To set up the project, follow these steps:
 3. Run `main.py` in the `/prepare_data` directory to prepare the data for analysis.
 
 
-## Workflow
+## Working with google colab
+_Only edit and push jupyter notebooks on google colab, edit and push .py scripts always locally!_
+
 As it is only possible to push changes on jupyter notebooks to github from google colab it is best to do all changes in the scripts locally.
 Run all the prepare data scripts locally and only store the final numpy array in google drive.
