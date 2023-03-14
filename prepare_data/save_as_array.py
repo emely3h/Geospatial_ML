@@ -16,7 +16,7 @@ at the end of folder save X and Y
 """
 
 
-def save_data_x_y(root_directory):
+def save_data_x_y(root_directory, tile_size, step_size):
     x = []
     y = []
     rgb_folder = os.path.join(root_directory, 'tiles_rgb')
@@ -39,11 +39,12 @@ def save_data_x_y(root_directory):
         x.append(x_array)
 
         y.append(np.load(f'{root_directory}/mask_wq/wq_flags_applied_{row_col}.npy'))
+    date = root_directory.split('/')[-1]
     x_numpy = np.array(x)
-    np.save(os.path.join(root_directory, 'x_input.npy'), x_numpy)
+    np.save(os.path.join(root_directory, f'x_input_{tile_size}_{step_size}_{date}.npy'), x_numpy)
 
     y_numpy = np.array(y)
-    np.save(os.path.join(root_directory, 'y_input.npy'), y_numpy)
+    np.save(os.path.join(root_directory, f'y_mask_{tile_size}_{step_size}_{date}.npy'), y_numpy)
 
     print(f'X_input array shape: {x_numpy.shape}')
     print(f'Y_input array shape: {y_numpy.shape}')

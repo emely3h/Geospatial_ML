@@ -83,3 +83,23 @@ def unite_unflagged_flagged(path1, path2, dest_path):
                 shutil.copy(os.path.join(folder2, f), merged_subfolder)
     else:
         print('No common folders found.')
+
+
+def delete_folder(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
+        print(f"{path} has been deleted.")
+
+
+def delete_duplicate_data(data_root):
+    flags_applied_rgb_folder = os.path.join(data_root, 'flags_applied_rgb')
+    flags_applied_folder = os.path.join(data_root, 'flags_applied')
+    unflagged_folder = os.path.join(data_root, 'unflagged')
+    unflagged_rgb_folder = os.path.join(data_root, 'unflagged_rgb')
+
+    delete_folder(flags_applied_folder)
+    delete_folder(flags_applied_rgb_folder)
+    delete_folder(unflagged_folder)
+    delete_folder(unflagged_rgb_folder)
+
+
