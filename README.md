@@ -35,6 +35,7 @@ To set up the project, follow these steps:
 
 1. Create an empty `/data` folder in the project root directory.
 2. Copy the two subfolders `unflagged` and `flags_applied` from the original data folder into the project `/data` folder.
+3. Create a `.env` file in the root directory and define the `DATA_PATH` variable
 3. Run `main.py` in the `/prepare_data` directory to prepare the data for analysis.
 
 
