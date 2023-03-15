@@ -103,3 +103,14 @@ def delete_duplicate_data(data_root):
     delete_folder(unflagged_rgb_folder)
 
 
+def extract_model_arrays(data_path):
+    dest_path = f'{data_path}/google_drive'
+    if not os.path.exists(dest_path):
+        os.makedirs(dest_path)
+    for folder in os.listdir(data_path):
+        folder_path = f'{data_path}/{folder}'
+        print(f'Checking folder {folder_path}')
+        for file in os.listdir(folder_path):
+            if file.startswith('x_input_') or file.startswith('y_mask'):
+                shutil.copy(f'{folder_path}/{file}', f'{dest_path}/{file}')
+    print('Data ready for uploading to google drive.')
