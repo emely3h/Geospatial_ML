@@ -1,20 +1,62 @@
-from prepare_folder import rename_folders, separate_unflagged_rgb, rename_files
+from prepare_folder import rename_folders, separate_unflagged_rgb, rename_files, unite_unflagged_flagged, delete_duplicate_data, extract_model_arrays
 from split_to_tiles import create_tiles
+from filter_tiles import filter_useful_tiles
+import os
+from save_as_array import save_data_x_y
+from dotenv import load_dotenv
+load_dotenv()
+
+data_path = os.environ.get('DATA_PATH')
+
 
 def reformat_folders():
-    rename_folders('../data/unflagged')
-    rename_folders('../data/flags_applied')
-    separate_unflagged_rgb('../data/unflagged/', '../data/unflagged_rgb/')
-    rename_files('../data/unflagged_rgb/')
-    rename_files('../data/flags_applied/')
-    rename_files('../data/unflagged/')
+    rename_folders(f'{data_path}/unflagged')
+    rename_folders(f'{data_path}/flags_applied')
+    separate_unflagged_rgb(f'{data_path}/unflagged/', f'{data_path}/unflagged_rgb/')
+    separate_unflagged_rgb(f'{data_path}/flags_applied/', f'{data_path}/flags_applied_rgb/')
+    rename_files(f'{data_path}/unflagged_rgb/')
+    rename_files(f'{data_path}/flags_applied/')
+    rename_files(f'{data_path}/flags_applied_rgb/')
+    rename_files(f'{data_path}/unflagged/')
+    unite_unflagged_flagged(f'{data_path}/flags_applied_rgb/', f'{data_path}/unflagged_rgb/', f'{data_path}/data_rgb')
+    unite_unflagged_flagged(f'{data_path}/flags_applied/', f'{data_path}/unflagged', f'{data_path}/data_without_rgb')
+    delete_duplicate_data(data_path)
 
 
-root_directory = "../data/unflagged_rgb/2022_06_20"
-#root_directory = "../data/test"
-# if the patch size is 250 and we want an overlap of 50, the step size would be 200
-tile_size = 250
-step_size = 240
-max_image_pixels = 933120000
+def prepare_all_data(data_path):
+    for folder in os.listdir(data_path):
+        print(f'================== START PREPARING FOLDER {folder} =================================')
+        folder_path = os.path.join(data_path, folder)
+        create_tiles(folder_path, tile_size, step_size, 933120000)
+        filter_useful_tiles(folder_path)
+        save_data_x_y(folder_path, tile_size, step_size)
+        print(f'================== FINISHED PREPARING FOLDER {folder} =================================')
+    extract_model_arrays(data_path)
 
-create_tiles(root_directory, tile_size, step_size, max_image_pixels)
+
+date_folder = f'{data_path}/data_rgb/2022_07_05'
+tile_size = 256
+step_size = 200
+
+# create folderstructure from emely_marcel_flagging.zip dataset
+#reformat_folders()
+
+# split images into tiles, input one date folder splits rgb image and both wq images
+#create_tiles(date_folder, tile_size, step_size, 933120000)
+
+# deletes tiles that contain only useless pixels
+#filter_useful_tiles(date_folder)
+
+# saves final input data (X = input images and y = mask images) as 2 separate numpy arrays
+#save_data_x_y(date_folder, tile_size, step_size)
+
+# prepare all folders at once
+#prepare_all_data(f'{data_path}/data_rgb')
+
+# extract numpy arrays (x_train, y_mask) and copy them to a separate folder to prepare for google drive upload
+#extract_model_arrays(f'{data_path}/data_rgb')
+
+
+
+
+

@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+import shutil
 
 
 def rename_folders(dir_path):
@@ -52,4 +53,64 @@ def rename_files(folder_path):
             if filename.startswith("RGB"):
                 rename_file(filename, "rgb.tif", root)
             if filename.startswith("TUR"):
-                rename_file(filename, "wq.tif", root)
+                if 'unflagged' in folder_path:
+                    rename_file(filename, "wq_unflagged.tif", root)
+                else:
+                    rename_file(filename, "wq_flags_applied.tif", root)
+
+
+def unite_unflagged_flagged(path1, path2, dest_path):
+    subfolders1 = [os.path.join(path1, f) for f in os.listdir(path1) if os.path.isdir(os.path.join(path1, f))]
+    subfolders2 = [os.path.join(path2, f) for f in os.listdir(path2) if os.path.isdir(os.path.join(path2, f))]
+
+    common_folders = set([os.path.basename(f1) for f1 in subfolders1]).intersection(
+        set([os.path.basename(f2) for f2 in subfolders2]))
+
+    if common_folders:
+        merged_folder = os.path.join(os.getcwd(), dest_path)
+        if not os.path.exists(merged_folder):
+            os.makedirs(merged_folder)
+
+        for folder in common_folders:
+            folder1 = os.path.join(path1, folder)
+            folder2 = os.path.join(path2, folder)
+            merged_subfolder = os.path.join(merged_folder, folder)
+            if not os.path.exists(merged_subfolder):
+                os.makedirs(merged_subfolder)
+            for f in os.listdir(folder1):
+                shutil.copy(os.path.join(folder1, f), merged_subfolder)
+            for f in os.listdir(folder2):
+                shutil.copy(os.path.join(folder2, f), merged_subfolder)
+    else:
+        print('No common folders found.')
+
+
+def delete_folder(path):
+    if os.path.exists(path):
+        shutil.rmtree(path)
+        print(f"{path} has been deleted.")
+
+
+def delete_duplicate_data(data_root):
+    flags_applied_rgb_folder = os.path.join(data_root, 'flags_applied_rgb')
+    flags_applied_folder = os.path.join(data_root, 'flags_applied')
+    unflagged_folder = os.path.join(data_root, 'unflagged')
+    unflagged_rgb_folder = os.path.join(data_root, 'unflagged_rgb')
+
+    delete_folder(flags_applied_folder)
+    delete_folder(flags_applied_rgb_folder)
+    delete_folder(unflagged_folder)
+    delete_folder(unflagged_rgb_folder)
+
+
+def extract_model_arrays(data_path):
+    dest_path = f'{data_path}/google_drive'
+    if not os.path.exists(dest_path):
+        os.makedirs(dest_path)
+    for folder in os.listdir(data_path):
+        folder_path = f'{data_path}/{folder}'
+        print(f'Checking folder {folder_path}')
+        for file in os.listdir(folder_path):
+            if file.startswith('x_input_') or file.startswith('y_mask'):
+                shutil.copy(f'{folder_path}/{file}', f'{dest_path}/{file}')
+    print('Data ready for uploading to google drive.')

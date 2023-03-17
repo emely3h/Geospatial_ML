@@ -47,39 +47,46 @@ def add_padding(img, tile_size, step):
 
 
 def create_tiles(
-    folder_path,
-    tile_size=256,
-    step=200,
-    max_image_pixels=933120000,
+        folder_path,
+        tile_size=256,
+        step=200,
+        max_image_pixels=933120000,
 ):
     Image.MAX_IMAGE_PIXELS = max_image_pixels
 
     for file in os.listdir(folder_path):
-        if file == "wq.tif" or file == "rgb.tif":
+        if file == "wq_flags_applied.tif" or file == "wq_unflagged.tif" or file == "rgb.tif":
             dest_dir = f'{folder_path}/tiles_{file.split(".")[0]}'
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)
 
+            print(f'File: {file}')
             img = np.asarray(Image.open(f'{folder_path}/{file}'))
+            print(f'array shape before padding: {img.shape}')
 
             img = add_padding(img, tile_size, step)
+            print(f'array shape after padding: {img.shape}')
 
             tile_dicts = generate_tiles(img, tile_size, step)
             for tile_dict in tile_dicts:
-                tile = tile_dict["tile"]
-                row = tile_dict["row"]
-                column = tile_dict["column"]
+                try:
+                    tile = tile_dict["tile"]
+                    row = tile_dict["row"]
+                    column = tile_dict["column"]
 
-                tile_name = f'{file.split(".")[0]}_{row}_{column}.tif'
-                tile_path = os.path.join(dest_dir, tile_name)
-                tile.save(tile_path)
-                print(f"Saved {tile_path}")
+                    tile_name = f'{file.split(".")[0]}_{row}_{column}.tif'
+                    tile_path = os.path.join(dest_dir, tile_name)
+
+                    tile.save(tile_path)
+                    print(f"Saved {tile_path}")
+                except:
+                    raise Exception(f'Error when saving tile {tile_path}')
 
 
-def delete_tiles_folder(path):
+def delete_tiles_mask_folder(path):
     for root, dirs, files in os.walk(path):
         for dir_name in dirs:
-            if dir_name.startswith('tiles'):
+            if dir_name.startswith('tiles') or dir_name.startswith('mask'):
                 folder_path = os.path.join(root, dir_name)
                 print(f"Deleting folder: {folder_path}")
                 os.rmdir(folder_path)
