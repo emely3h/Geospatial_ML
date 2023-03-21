@@ -4,6 +4,8 @@ from filter_tiles import filter_useful_tiles
 import os
 from save_as_array import save_data_x_y
 from dotenv import load_dotenv
+import numpy as np
+
 load_dotenv()
 
 data_path = os.environ.get('DATA_PATH')
@@ -54,9 +56,4 @@ step_size = 200
 #prepare_all_data(f'{data_path}/data_rgb')
 
 # extract numpy arrays (x_train, y_mask) and copy them to a separate folder to prepare for google drive upload
-#extract_model_arrays(f'{data_path}/data_rgb')
-
-
-
-
-
+extract_model_arrays(f'{data_path}/data_rgb')

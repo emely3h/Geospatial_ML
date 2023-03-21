@@ -44,3 +44,4 @@ _Only edit and push jupyter notebooks on google colab, edit and push .py scripts
 
 As it is only possible to push changes on jupyter notebooks to github from google colab it is best to do all changes in the scripts locally.
 Run all the prepare data scripts locally and only store the final numpy array in google drive.
+- The MachineLearning folder will appear in your google drive `shared with me` subfolder. To access it from within colab you need to create a shortcut. (left click on the folder, 'add shortcut')
