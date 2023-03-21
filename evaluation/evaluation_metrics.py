@@ -117,7 +117,7 @@ class EvaluationMetrics:
         print(f'Number of run: {self.run_count}, tile_size: {self.tile_size}, step_size: {self.step_size}')
 
     def save_to_file(self):
-        file_name = f'../models/metrics_{self.tile_size}_{self.step_size}_{self.run_count}.pkl'
+        file_name = f'../metrics/{self.tile_size}_{self.step_size}_{self.run_count}.pkl'
         with open(file_name, 'wb') as file:
             pickle.dump(self, file)
 
