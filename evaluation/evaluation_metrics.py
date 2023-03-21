@@ -127,11 +127,10 @@ class EvaluationMetrics:
         unique_vals, counts = np.unique(flatten, return_counts=True)
         label_count = {}
         for val, count in zip(unique_vals, counts):
-            label_count[unique_vals] = count
+            label_count[f'{val}'] = count
         return label_count
 
     def get_statistics(self, x_train, x_val, x_test, y_train, y_val, y_test):
-       return {'x_train': self.get_label_count(x_train), 'x_val': self.get_label_count(x_val),
-                 'x_test': self.get_label_count(x_test), 'y_train': self.get_label_count(y_train),
+       return {'y_train': self.get_label_count(y_train),
                  'y_val': self.get_label_count(y_val), 'y_test': self.get_label_count(y_test)}
     # todo add pixel accuracy
