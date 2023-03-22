@@ -8,8 +8,21 @@ class EvaluationMetrics:
         This class calculates and summarizes evaluation metrics based on the predicted and true labels.
     """
 
-    def __init__(self, x_train, x_val, x_test, y_train, y_val, y_test, y_pred, training_dates, validation_dates, testing_dates, tile_size, step_size,
+    def __init__(self, x_train, x_val, x_test, y_train, y_val, y_test, y_pred, dataset, training_dates,
+                 validation_dates, testing_dates, tile_size, step_size,
                  run_count):
+
+        self.y_pred = y_pred
+        if dataset == 'training':
+            self.y_true = y_train
+        elif dataset == 'validation':
+            self.y_true = y_val
+        elif dataset == 'testing':
+            self.y_true = y_test
+        else:
+            raise Exception(
+                f'Specify the dataset to be used for calculating the metrics. The string has to be either "testing", "training" or "validation", however it was {dataset}.')
+
         self.class_statistics = self.get_statistics(x_train, x_val, x_test, y_train, y_val, y_test)
 
         self.training_dates = training_dates
@@ -19,11 +32,23 @@ class EvaluationMetrics:
         self.step_size = step_size
         self.run_count = run_count
 
-        self.jacard = self.jacard_coef(y_test, y_pred)
+        self.jacard = self.jacard_coef(self.y_true, y_pred)
 
-        self.conf_matrix_land = self.confusion_matrix(y_test, y_pred, 2)
-        self.conf_matrix_valid = self.confusion_matrix(y_test, y_pred, 1)
-        self.conf_matrix_invalid = self.confusion_matrix(y_test, y_pred, 0)
+        self.conf_matrix_land = self.confusion_matrix(self.y_true, y_pred, 2)
+        self.conf_matrix_valid = self.confusion_matrix(self.y_true, y_pred, 1)
+        self.conf_matrix_invalid = self.confusion_matrix(self.y_true, y_pred, 0)
+
+        self.precision_land = self.precision(self.conf_matrix_land)
+        self.sensitivity_recall_land = self.sensitivity_recall(self.conf_matrix_land)
+        self.specificy_land = self.specificy(self.conf_matrix_land)
+
+        self.precision_valid = self.precision(self.conf_matrix_valid)
+        self.sensitivity_recall_valid = self.sensitivity_recall(self.conf_matrix_valid)
+        self.specificy_valid = self.specificy(self.conf_matrix_valid)
+
+        self.precision_invalid = self.precision(self.conf_matrix_invalid)
+        self.sensitivity_recall_invalid = self.sensitivity_recall(self.conf_matrix_invalid)
+        self.specificy_invalid = self.specificy(self.conf_matrix_invalid)
 
         self.f1_land = self.f1_scores(self.conf_matrix_land)
         self.f1_invalid = self.f1_scores(self.conf_matrix_invalid)
@@ -36,7 +61,7 @@ class EvaluationMetrics:
         intersection = keras.backend.sum(y_true_f * y_pred_f)
         return (intersection + 1.0) / (
                 keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection + 1.0
-        )  #todo reason for +1?
+        )  # todo reason for +1?
 
     def jacard_rounding_issue(self, y_true, y_pred):
         # revert one hot encoding => binary tensor [0, 0, 1] back to label [2] (3D array to 2D array)
@@ -105,13 +130,24 @@ class EvaluationMetrics:
         return 2 * prec * recall / (prec + recall)
 
     def print_metrics(self):
-        print(f'jacard index: {self.jacard}')
-        print(f'conf_matrix_land: {self.conf_matrix_land}')
-        print(f'conf_matrix_valid: {self.conf_matrix_valid}')
-        print(f'conf_matrix_invalid: {self.conf_matrix_invalid}')
+        print(f'jacard index: {self.jacard} \n')
+
+        print(f'precision_land: {self.precision_land}')
+        print(f'precision_valid: {self.precision_valid}')
+        print(f'precision_invalid: {self.precision_invalid} \n')
+
+        print(f'recall_invalid_land: {self.sensitivity_recall_land}')
+        print(f'recall_invalid_land: {self.sensitivity_recall_valid}')
+        print(f'recall_invalid_land: {self.sensitivity_recall_invalid} \n')
+
+        print(f'specificy_invalid_land: {self.specificy_land}')
+        print(f'specificy_invalid_valid: {self.specificy_valid}')
+        print(f'specificy_invalid_invalid: {self.specificy_invalid} \n')
+
         print(f'f1_land: {self.f1_land}')
         print(f'f1_invalid: {self.f1_invalid}')
         print(f'f1_valid: {self.f1_valid}')
+
         print(
             f'Training dates: {self.training_dates}, validation dates: {self.validation_dates}, testing dates: {self.testing_dates}')
         print(f'Number of run: {self.run_count}, tile_size: {self.tile_size}, step_size: {self.step_size}')
@@ -131,6 +167,6 @@ class EvaluationMetrics:
         return label_count
 
     def get_statistics(self, x_train, x_val, x_test, y_train, y_val, y_test):
-       return {'y_train': self.get_label_count(y_train),
-                 'y_val': self.get_label_count(y_val), 'y_test': self.get_label_count(y_test)}
+        return {'y_train': self.get_label_count(y_train),
+                'y_val': self.get_label_count(y_val), 'y_test': self.get_label_count(y_test)}
     # todo add pixel accuracy
