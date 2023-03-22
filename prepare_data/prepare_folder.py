@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 import shutil
+import numpy as np
 
 
 def rename_folders(dir_path):
@@ -109,8 +110,16 @@ def extract_model_arrays(data_path):
         os.makedirs(dest_path)
     for folder in os.listdir(data_path):
         folder_path = f'{data_path}/{folder}'
+
         print(f'Checking folder {folder_path}')
+
+        arrays_dict = {}
         for file in os.listdir(folder_path):
-            if file.startswith('x_input_') or file.startswith('y_mask'):
-                shutil.copy(f'{folder_path}/{file}', f'{dest_path}/{file}')
+            if file.startswith('x_input_'):
+                array = np.load(f'{folder_path}/{file}')
+                arrays_dict['x_input'] = array
+            if file.startswith('y_mask'):
+                array = np.load(f'{folder_path}/{file}')
+                arrays_dict['y_mask'] = array
+        np.savez_compressed(f'{dest_path}/{folder_path.split("/")[-1]}', **arrays_dict)
     print('Data ready for uploading to google drive.')
