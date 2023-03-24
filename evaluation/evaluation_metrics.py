@@ -170,3 +170,7 @@ class EvaluationMetrics:
         return {'y_train': self.get_label_count(y_train),
                 'y_val': self.get_label_count(y_val), 'y_test': self.get_label_count(y_test)}
     # todo add pixel accuracy
+
+
+def feeling_right_now():
+    print("Berlin's getting warmer. Summer is coming!")
