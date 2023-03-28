@@ -123,3 +123,23 @@ def extract_model_arrays(data_path):
                 arrays_dict['y_mask'] = array
         np.savez_compressed(f'{dest_path}/{folder_path.split("/")[-1]}', **arrays_dict)
     print('Data ready for uploading to google drive.')
+
+
+def combine_npz_arrays(data_path):
+    drive_path = f'{data_path}/google_drive'
+    arrays_dict = {}
+    for file in os.listdir(drive_path):
+        if file != '2022_08_09.npz':
+            print(f'Adding image {file}')
+            array = np.load(f'{drive_path}/{file}')
+            x_input = array['x_input']
+            y_mask = array['y_mask']
+            if len(arrays_dict) < 1:
+                arrays_dict['x_input'] = x_input
+                arrays_dict['y_mask'] = y_mask
+            else:
+                arrays_dict['x_input'] = np.concatenate((arrays_dict['x_input'], x_input), axis=0)
+                arrays_dict['y_mask'] = np.concatenate((arrays_dict['y_mask'], y_mask), axis=0)
+    np.savez_compressed(f'{data_path}/{drive_path}/all_images', **arrays_dict)
+    print('Combined all compressed numpy images into one single file.')
+

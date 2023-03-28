@@ -1,4 +1,4 @@
-from prepare_folder import rename_folders, separate_unflagged_rgb, rename_files, unite_unflagged_flagged, delete_duplicate_data, extract_model_arrays
+from prepare_folder import rename_folders, separate_unflagged_rgb, rename_files, unite_unflagged_flagged, delete_duplicate_data, extract_model_arrays, combine_npz_arrays
 from split_to_tiles import create_tiles
 from filter_tiles import filter_useful_tiles
 import os
@@ -56,4 +56,9 @@ step_size = 200
 #prepare_all_data(f'{data_path}/data_rgb')
 
 # extract numpy arrays (x_train, y_mask) and copy them to a separate folder to prepare for google drive upload
-extract_model_arrays(f'{data_path}/data_rgb')
+#extract_model_arrays(f'{data_path}/data_rgb')
+
+# save all compressed numpy arrays in one file instead of one file per image
+# only works if extract_mode_arrays() has been executed before
+# when running local only enough RAM for 2 images => execute in colab
+# combine_npz_arrays(f'{data_path}/data_rgb')
