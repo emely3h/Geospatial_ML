@@ -15,54 +15,46 @@ def normalizing(X, y):
 
 
 
-def execute_training(count, x_train, x_val, x_test, y_train, y_val, y_test, training_dates, validation_dates, testing_dates, tile_size, step_size, saving_path):
-  print(f'Start training number {count}')
-  model = unet_2d(input_shape=(256, 256, 5), num_classes=3)
-  model.compile(optimizer='adam',
-                loss=categorical_crossentropy,
-                metrics=['accuracy']) # are weights resetted?
+def define_model(input_shape=(256, 256, 5), num_classes=3):
+    model = unet_2d(input_shape=input_shape, num_classes=num_classes)
+    model.compile(optimizer='adam',
+                  loss=categorical_crossentropy,
+                  metrics=['accuracy'])
+    return model
 
-  early_stop = EarlyStopping(monitor='accuracy', patience=5) 
+def train_model(model, x_train, y_train, x_val, y_val, epochs=100):
+    early_stop = EarlyStopping(monitor='accuracy', patience=5)
+    history = model.fit(x=x_train, y=y_train, epochs=epochs,
+                        validation_data=(x_val, y_val),
+                        callbacks=[early_stop])
+    return history
 
-  model_history = model.fit(x=x_train, y=y_train, epochs=100, validation_data=(x_val, y_val), callbacks=[early_stop]) 
-  print('training completed')
-  
-  # saving model
-  model_name = f'{tile_size}_{step_size}_run_{count}'
-  model.save(f'../models/{saving_path}/model_{model_name}.h5')
-  print('saving model completed')
+def save_model(model, model_name, saving_path='../models'):
+    model.save(f'{saving_path}/model_{model_name}.h5')
 
-  # saving model history
-  with open(f'../models/{saving_path}/history_{model_name}.pkl', 'wb') as file_pi:
-      pickle.dump(model_history.history, file_pi)
-  print('saving history completed')
-
-  # making predictions
-  pred_test = model.predict(x_test)
-  pred_val = model.predict(x_val)
-  pred_train = model.predict(x_train)
-  print('making predictions completed')
-  print(pred_test.shape)
-  print(pred_val.shape)
-  print(pred_train.shape)
-
-  # calculating metrics
-  metrics_test = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_test, pred_test, training_dates, validation_dates, testing_dates, tile_size, step_size, count)
-  metrics_val = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_val, pred_val, training_dates, validation_dates, testing_dates, tile_size, step_size, count)
-  metrics_train = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_train, pred_train, training_dates, validation_dates, testing_dates, tile_size, step_size, count)
-  print('calculating metrics completed')
-
-  # saving metrics
-  with open(f'../metrics/{saving_path}/metrics_test{model_name}.pkl', 'wb') as file_pi:
-      pickle.dump(metrics_test, file_pi)
-  with open(f'../metrics/{saving_path}/metrics_val{model_name}.pkl', 'wb') as file_pi:
-      pickle.dump(metrics_val, file_pi)
-  with open(f'../metrics/{saving_path}/metrics_train{model_name}.pkl', 'wb') as file_pi:
-      pickle.dump(metrics_train, file_pi)
-  print('saving metrics completed')
-
-  return  {'metrics_test': metrics_test, 'metrics_val': metrics_val, 'metrics_train': metrics_train}
+def save_model_history(history, model_name, saving_path='../models'):
+    with open(f'{saving_path}/history_{model_name}.pkl', 'wb') as file_pi:
+        pickle.dump(history.history, file_pi)
 
 
-def random_print():
-   print('random print')
+def predict_model(model, x_train, x_val, x_test):
+    pred_train = model.predict(x_train)
+    pred_val = model.predict(x_val)
+    pred_test = model.predict(x_test)
+    return pred_train, pred_val, pred_test
+
+def evaluate_predictions(x_train, x_val, x_test, y_train, y_val, y_test, pred_train, pred_val, pred_test, training_dates, validation_dates, testing_dates, tile_size, step_size, count):
+    metrics_train = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_train, pred_train, training_dates, validation_dates, testing_dates, tile_size, step_size, count)
+    metrics_val = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_val, pred_val, training_dates, validation_dates, testing_dates, tile_size, step_size, count)
+    metrics_test = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_test, pred_test, training_dates, validation_dates, testing_dates, tile_size, step_size, count)
+    return {'metrics_train': metrics_train,
+            'metrics_val': metrics_val,
+            'metrics_test': metrics_test}
+
+def save_metrics(metrics, model_name, saving_path='../metrics'):
+    with open(f'{saving_path}/metrics_test_{model_name}.pkl', 'wb') as file:
+        pickle.dump(metrics['metrics_test'], file)
+    with open(f'{saving_path}/metrics_val_{model_name}.pkl', 'wb') as file:
+        pickle.dump(metrics['metrics_val'], file)
+    with open(f'{saving_path}/metrics_train_{model_name}.pkl', 'wb') as file:
+        pickle.dump(metrics['metrics_train'], file)
