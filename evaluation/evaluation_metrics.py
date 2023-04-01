@@ -32,7 +32,7 @@ class EvaluationMetrics:
         self.step_size = step_size
         self.run_count = run_count
 
-        self.jacard = self.jacard_coef(self.y_true, y_pred)
+        self.jaccard = self.jaccard_coef(self.y_true, y_pred)
 
         self.conf_matrix_land = self.confusion_matrix(self.y_true, y_pred, 2)
         self.conf_matrix_valid = self.confusion_matrix(self.y_true, y_pred, 1)
@@ -54,7 +54,7 @@ class EvaluationMetrics:
         self.f1_invalid = self.f1_scores(self.conf_matrix_invalid)
         self.f1_valid = self.f1_scores(self.conf_matrix_valid)
 
-    def jacard_coef(self, y_true, y_pred):
+    def jaccard_coef(self, y_true, y_pred):
         y_true_f = keras.backend.flatten(y_true)
         y_pred_f = keras.backend.flatten(y_pred)
 
@@ -63,7 +63,7 @@ class EvaluationMetrics:
                 keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection + 1.0
         )  # todo reason for +1?
 
-    def jacard_rounding_issue(self, y_true, y_pred):
+    def jaccard_rounding_issue(self, y_true, y_pred):
         # revert one hot encoding => binary tensor [0, 0, 1] back to label [2] (3D array to 2D array)
         label_map_true = np.argmax(y_true, axis=-1)
         label_map_pred = np.argmax(y_pred, axis=-1)
@@ -77,7 +77,7 @@ class EvaluationMetrics:
         intersection = np.sum(one_hot_true * one_hot_pred)
         # calculate union (a u B, A vereint B)
         union = len(one_hot_true) + len(one_hot_pred) - intersection
-        # return jacard coefficient
+        # return jaccard coefficient
         return (intersection + 1) / (union + 1)
 
     def confusion_matrix(self, y_true, y_pred, label):
@@ -130,7 +130,7 @@ class EvaluationMetrics:
         return 2 * prec * recall / (prec + recall)
 
     def print_metrics(self):
-        print(f'jacard index: {self.jacard} \n')
+        print(f'jaccard index: {self.jaccard} \n')
 
         print(f'precision_land: {self.precision_land}')
         print(f'precision_valid: {self.precision_valid}')
