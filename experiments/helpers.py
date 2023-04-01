@@ -58,3 +58,16 @@ def save_metrics(metrics, model_name, saving_path='../metrics'):
         pickle.dump(metrics['metrics_val'], file)
     with open(f'{saving_path}/metrics_train_{model_name}.pkl', 'wb') as file:
         pickle.dump(metrics['metrics_train'], file)
+
+def get_mean_jaccard(all_metrics):
+  jaccard_array = []
+  for idx, metric in enumerate(all_metrics):
+    print(metric.jaccard)
+    jaccard_array.append(metric.jaccard)
+
+  print()
+  print(f'Mean jaccard index: {sum(jaccard_array)/10}')
+  print()
+  print(f'Worst index: {min(jaccard_array)}')
+  print(f'Best index: {max(jaccard_array)}')
+  print(f'Variance: {max(jaccard_array)-min(jaccard_array)}')
