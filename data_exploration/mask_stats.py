@@ -4,8 +4,16 @@ import numpy as np
 class Mask_Stats:
 
     """
-    takes y_mask numpy array to instanciate object
-    gives overview over how many pixels per label
+    A Mask_Stats object represents the percentage ratio of pixels in the different labels
+    init function takes y_mask numpy array of shape (x, 256, 256)
+
+    Parameters:
+        pix_land: total number of land pixels
+        pix_valid: total number of valid pixels
+        pix_invalid: total number of invalid pixels
+        pix_land_per: percentage of land pixels
+        pix_valid_per: percentage of valid pixels
+        pix_invalid_per: percentage of invalid pixels
     """
 
     def __init__(self, y_array):
