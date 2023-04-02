@@ -19,7 +19,7 @@ class Mask_Stats:
         self.pix_land_per = 100 / self.sum_pix * self.pix_land
         self.pix_valid_per = 100 / self.sum_pix * self.pix_valid
         self.pix_invalid_per = 100 / self.sum_pix * self.pix_invalid
-        self.print_stats()
+        #self.print_stats()
 
     def num_of_pixels_per_class(self, y_mask, label):
         flatten = np.reshape(y_mask, (-1,))
