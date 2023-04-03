@@ -36,7 +36,7 @@ def save_model_history(history, model_name, saving_path='../models'):
         pickle.dump(history.history, file_pi)
 
 
-def predict_model(model, x_train, x_val, x_test):
+def make_predictions(model, x_train, x_val, x_test):
     pred_train = model.predict(x_train)
     pred_val = model.predict(x_val)
     pred_test = model.predict(x_test)
