@@ -31,7 +31,7 @@ def _get_valid_split(x_input, y_mask, threshold):
 
 def split_dataset(chunk_size, total_tiles, data_path, threshold):
     """
-    Splits a dataset into a training set (60%), validation set (20%) and testing set (20%)
+    Splits a dataset consisting of non overlapping tiles into a training set (60%), validation set (20%) and testing set (20%)
     Requires a folder called combined in the data_path that holds a memory map both for all input and all mask tiles
 
     Args:
@@ -100,3 +100,67 @@ def split_dataset(chunk_size, total_tiles, data_path, threshold):
         val_idx += X_val.shape[0]
         test_idx += X_test.shape[0]
     print(f'Finished at: {datetime.datetime.now()}')
+
+
+def _validate(df, total_tiles, total_invalids, threshold, target):
+    df_num_tiles = df['num_tiles'].sum()
+    df_num_invalides = df['num_invalid_pix'].sum()
+
+    percentage_tiles = 100 / total_tiles * df_num_tiles
+    percentage_invalides = 100 / total_invalids * df_num_invalides
+
+    if (target + threshold) >= percentage_tiles <= (target - threshold):
+        return False
+    elif (target + threshold) >= percentage_invalides <= (target - threshold):
+        return False
+    else:
+        print(f'Total_tiles: {total_tiles} total_invalids: {total_invalids}')
+        print(f'percentage_tiles: {percentage_tiles}, percentage_invalides: {percentage_invalides} ')
+        print()
+
+        return True
+
+
+def group_images(threshold, df):
+    """
+    Calculates possible splits for dataset with overlapping tiles. When applying
+    a 60-20-20 split this means we will use 10 image for training,
+    3 images for validation and 3 images for testing. See data_exploration notebook.
+
+    Args:
+        threshold: max percentage deviation from 60-20-20 split
+        df: dataframe, containing amount of tiles and invalid pixels per image
+    """
+
+    total_tiles = df['num_tiles'].sum()
+    total_invalids = df['num_invalid_pix'].sum()
+
+    valid = False
+    count = 0
+
+    while not valid:
+        print(f'Count: {count}')
+        df_copy = df.copy()
+
+        training_set = df_copy.sample(n=10)
+        df_copy = df_copy.drop(training_set.index)
+
+        validation_set = df_copy.sample(n=3)
+        df_copy = df_copy.drop(validation_set.index)
+
+        test_set = df_copy.sample(n=3)
+        df_copy = df_copy.drop(test_set.index)
+
+        train_validate = _validate(training_set, total_tiles, total_invalids, threshold, 60)
+        val_validate = _validate(validation_set, total_tiles, total_invalids, threshold, 20)
+        test_validate = _validate(test_set, total_tiles, total_invalids, threshold, 20)
+
+        if train_validate and val_validate and test_validate:
+            valid = True
+        else:
+            training_set = None
+            validation_set = None
+            test_set = None
+            count += 1
+
+    return training_set, validation_set, test_set
