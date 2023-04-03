@@ -5,7 +5,7 @@ import datetime
 
 # Helper function: writes chunk to the output file using the memory-mapped array
 def _write_chunk_to_mm(data, chunk, chunk_size, start_idx, end_idx, npz_start_idx, npz_end_idx, output_file_x,
-                      output_file_y, rest):
+                       output_file_y, rest):
     if rest:
         y_mask_chunk = data["y_mask"][npz_start_idx:npz_end_idx, ...]
         x_input_chunk = data["x_input"][npz_start_idx:npz_end_idx, ...]
@@ -22,7 +22,7 @@ def _write_chunk_to_mm(data, chunk, chunk_size, start_idx, end_idx, npz_start_id
 
 
 # Load and concatenate tiles from original images into one memory map, each for x_input and y_mask tiles
-def create_mmaps(total_tiles, data_path, mmap_path_x, mmap_path_y, compressed_path):
+def create_mmaps(total_tiles, data_path, mmap_path_x, mmap_path_y, compressed_path, img_names=None):
     print(f'Started at: {datetime.datetime.now()}')
 
     x_output_shape = (total_tiles, 256, 256, 5)
@@ -37,43 +37,47 @@ def create_mmaps(total_tiles, data_path, mmap_path_x, mmap_path_y, compressed_pa
     start_idx = 0
     end_idx = chunk_size
 
-    for file in os.listdir(data_path):
-        if not os.path.isdir(os.path.join(data_path, file)) and file.startswith('2022'):
-            file_count += 1
+    if img_names is None:
+        for file in os.listdir(data_path):
+            if not os.path.isdir(os.path.join(data_path, file)) and file.startswith('2022'):
+                img_names.append(file)
 
-            # Load the compressed numpy array in chunks using np.memmap
-            with np.load(os.path.join(data_path, file), mmap_mode="r") as data:
-                npz_start_idx = 0
-                npz_end_idx = chunk_size
+    for file in img_names:
+        file_count += 1
 
-                num_chunks = data["x_input"].shape[0] // chunk_size
-                rest = data["x_input"].shape[0] % chunk_size
-                print(f'loading file {file_count}: {file} shape: {data["x_input"].shape} {data["y_mask"].shape}')
+        # Load the compressed numpy array in chunks using np.memmap
+        with np.load(os.path.join(data_path, file), mmap_mode="r") as data:
+            npz_start_idx = 0
+            npz_end_idx = chunk_size
 
-                for chunk in range(num_chunks):
-                    print(f'Chunk {chunk}')
-                    _write_chunk_to_mm(data, chunk, chunk_size, start_idx, end_idx, npz_start_idx, npz_end_idx,
-                                      output_file_x, output_file_y, False)
+            num_chunks = data["x_input"].shape[0] // chunk_size
+            rest = data["x_input"].shape[0] % chunk_size
+            print(f'loading file {file_count}: {file} shape: {data["x_input"].shape} {data["y_mask"].shape}')
 
-                    if chunk != (num_chunks - 1):
-                        start_idx = end_idx
-                        end_idx += chunk_size
-                        npz_start_idx = npz_end_idx
-                        npz_end_idx += chunk_size
-
-                # Calculate + append rest of .npz
-                print(f'Rest: {rest}')
-                start_idx = end_idx
-                end_idx = end_idx + rest
-
-                npz_start_idx = (chunk + 1) * chunk_size
-                npz_end_idx = (chunk + 1) * chunk_size + rest
+            for chunk in range(num_chunks):
+                print(f'Chunk {chunk}')
                 _write_chunk_to_mm(data, chunk, chunk_size, start_idx, end_idx, npz_start_idx, npz_end_idx,
-                                  output_file_x, output_file_y, True)
+                                   output_file_x, output_file_y, False)
 
-                print()
-                start_idx = end_idx
-                end_idx += chunk_size
+                if chunk != (num_chunks - 1):
+                    start_idx = end_idx
+                    end_idx += chunk_size
+                    npz_start_idx = npz_end_idx
+                    npz_end_idx += chunk_size
+
+            # Calculate + append rest of .npz
+            print(f'Rest: {rest}')
+            start_idx = end_idx
+            end_idx = end_idx + rest
+
+            npz_start_idx = (chunk + 1) * chunk_size
+            npz_end_idx = (chunk + 1) * chunk_size + rest
+            _write_chunk_to_mm(data, chunk, chunk_size, start_idx, end_idx, npz_start_idx, npz_end_idx,
+                               output_file_x, output_file_y, True)
+
+            print()
+            start_idx = end_idx
+            end_idx += chunk_size
 
     print('finished concatenating arrays')
 
