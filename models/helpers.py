@@ -8,10 +8,12 @@ import pickle
 
 def normalizing_encoding(X, y):
     print('y shape: ', y.shape)
-    print('Normalizing data...')
+    print('Encoding data...')
     y_one_hot = to_categorical(y, num_classes=3)
     print('y one hot shape: ', y_one_hot.shape)
+    print('x shape: ', X.shape)
     X_normal = X / 255
+
     return X_normal, y_one_hot
 
 
@@ -54,9 +56,11 @@ def save_metrics(metrics_train, metrics_val, metrics_test, saving_path):
 
 def get_mean_jaccard(all_metrics):
     jaccard_array = []
+    jaccard_array_physical = []
     for idx, metric in enumerate(all_metrics):
         print(metric.jaccard)
         jaccard_array.append(metric.jaccard)
+        jaccard_array_physical.append(metric.jaccard_physical)
 
     print()
     print(f'Mean jaccard index: {sum(jaccard_array) / 10}')
@@ -64,3 +68,10 @@ def get_mean_jaccard(all_metrics):
     print(f'Worst index: {min(jaccard_array)}')
     print(f'Best index: {max(jaccard_array)}')
     print(f'Variance: {max(jaccard_array) - min(jaccard_array)}')
+
+    print()
+    print(f'Mean physical jaccard index: {sum(jaccard_array_physical) / 10}')
+    print()
+    print(f'Worst physical index: {min(jaccard_array_physical)}')
+    print(f'Best physical index: {max(jaccard_array_physical)}')
+    print(f'Variance: {max(jaccard_array_physical) - min(jaccard_array_physical)}')
