@@ -8,10 +8,12 @@ import pickle
 
 def normalizing_encoding(X, y):
     print('y shape: ', y.shape)
-    print('Normalizing data...')
+    print('Encoding data...')
     y_one_hot = to_categorical(y, num_classes=3)
     print('y one hot shape: ', y_one_hot.shape)
+    print('x shape: ', X.shape)
     X_normal = X / 255
+
     return X_normal, y_one_hot
 
 
@@ -43,33 +45,22 @@ def make_predictions(model, x_train, x_val, x_test):
     return pred_train, pred_val, pred_test
 
 
-def evaluate_predictions(x_train, x_val, x_test, y_train, y_val, y_test, pred_train, pred_val, pred_test,
-                         training_dates, validation_dates, testing_dates, tile_size, step_size, count):
-    metrics_train = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_train, pred_train, training_dates,
-                                      validation_dates, testing_dates, tile_size, step_size, count)
-    metrics_val = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_val, pred_val, training_dates,
-                                    validation_dates, testing_dates, tile_size, step_size, count)
-    metrics_test = EvaluationMetrics(x_train, x_val, x_test, y_train, y_val, y_test, pred_test, training_dates,
-                                     validation_dates, testing_dates, tile_size, step_size, count)
-    return {'metrics_train': metrics_train,
-            'metrics_val': metrics_val,
-            'metrics_test': metrics_test}
-
-
-def save_metrics(metrics, model_name, saving_path='../metrics'):
-    with open(f'{saving_path}/metrics_test_{model_name}.pkl', 'wb') as file:
-        pickle.dump(metrics['metrics_test'], file)
-    with open(f'{saving_path}/metrics_val_{model_name}.pkl', 'wb') as file:
-        pickle.dump(metrics['metrics_val'], file)
-    with open(f'{saving_path}/metrics_train_{model_name}.pkl', 'wb') as file:
-        pickle.dump(metrics['metrics_train'], file)
+def save_metrics(metrics_train, metrics_val, metrics_test, saving_path):
+    with open(f'{saving_path}/metrics_test.pkl', 'wb') as file:
+        pickle.dump(metrics_train, file)
+    with open(f'{saving_path}/metrics_val.pkl', 'wb') as file:
+        pickle.dump(metrics_val, file)
+    with open(f'{saving_path}/metrics_train.pkl', 'wb') as file:
+        pickle.dump(metrics_test, file)
 
 
 def get_mean_jaccard(all_metrics):
     jaccard_array = []
+    jaccard_array_physical = []
     for idx, metric in enumerate(all_metrics):
         print(metric.jaccard)
         jaccard_array.append(metric.jaccard)
+        jaccard_array_physical.append(metric.jaccard_physical)
 
     print()
     print(f'Mean jaccard index: {sum(jaccard_array) / 10}')
@@ -77,3 +68,10 @@ def get_mean_jaccard(all_metrics):
     print(f'Worst index: {min(jaccard_array)}')
     print(f'Best index: {max(jaccard_array)}')
     print(f'Variance: {max(jaccard_array) - min(jaccard_array)}')
+
+    print()
+    print(f'Mean physical jaccard index: {sum(jaccard_array_physical) / 10}')
+    print()
+    print(f'Worst physical index: {min(jaccard_array_physical)}')
+    print(f'Best physical index: {max(jaccard_array_physical)}')
+    print(f'Variance: {max(jaccard_array_physical) - min(jaccard_array_physical)}')

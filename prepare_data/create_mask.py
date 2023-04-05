@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np
 import os
+from tensorflow.keras.utils import to_categorical
 
 
 def label_pixels(img):
@@ -27,3 +28,9 @@ def create_mask(root_folder, max_image_pixels):
         mask_array_path = os.path.join(mask_folder, f'{filename.split(".")[0]}')
         np.save(f'{mask_array_path}.npy', img)
         print(f"Saved {mask_array_path}")
+
+
+def create_physical_mask(x_input):
+    wq_channel = x_input[:, :, :, 4]
+    labeled = label_pixels(wq_channel)
+    return to_categorical(labeled, num_classes=3)
