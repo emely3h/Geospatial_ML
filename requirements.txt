@@ -18,6 +18,8 @@ certifi==2022.12.7
 cffi==1.15.1
 charset-normalizer==3.0.1
 comm==0.1.2
+contourpy==1.0.7
+cycler==0.11.0
 debugpy==1.6.6
 decorator==5.1.1
 defusedxml==0.7.1
@@ -39,6 +41,7 @@ isoduration==20.11.0
 jax==0.4.8
 jedi==0.18.2
 Jinja2==3.1.2
+joblib==1.2.0
 json5==0.9.11
 jsonpointer==2.3
 jsonschema==4.17.3
@@ -53,10 +56,15 @@ jupyter_server_ydoc==0.6.1
 jupyterlab==3.6.1
 jupyterlab-pygments==0.2.2
 jupyterlab_server==2.19.0
+keras==2.11.0
+kiwisolver==1.4.4
+libclang==15.0.6.1
+Markdown==3.4.1
 keras==2.12.0
 libclang==16.0.0
 Markdown==3.4.3
 MarkupSafe==2.1.2
+matplotlib==3.7.1
 matplotlib-inline==0.1.6
 mistune==2.0.5
 ml-dtypes==0.0.4
@@ -67,7 +75,7 @@ nbformat==5.7.3
 nest-asyncio==1.5.6
 notebook==6.5.2
 notebook_shim==0.2.2
-numpy==1.23.5
+numpy==1.24.2
 oauthlib==3.2.2
 opt-einsum==3.3.0
 packaging==23.0
@@ -88,6 +96,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.21
 Pygments==2.14.0
+pyparsing==3.0.9
 pyrsistent==0.19.3
 python-dateutil==2.8.2
 python-dotenv==1.0.0
@@ -99,6 +108,7 @@ requests-oauthlib==1.3.1
 rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
 rsa==4.9
+scikit-learn==1.2.2
 scipy==1.10.1
 Send2Trash==1.8.0
 six==1.16.0
@@ -113,6 +123,7 @@ tensorflow-estimator==2.12.0
 tensorflow-io-gcs-filesystem==0.32.0
 termcolor==2.2.0
 terminado==0.17.1
+threadpoolctl==3.1.0
 tinycss2==1.2.1
 tomli==2.0.1
 tornado==6.2
@@ -125,6 +136,6 @@ webcolors==1.12
 webencodings==0.5.1
 websocket-client==1.5.1
 Werkzeug==2.2.3
-wrapt==1.14.1
+wrapt==1.15.0
 y-py==0.5.9
 ypy-websocket==0.8.2
