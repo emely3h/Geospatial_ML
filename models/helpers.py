@@ -45,12 +45,12 @@ def make_predictions(model, x_train, x_val, x_test):
     return pred_train, pred_val, pred_test
 
 
-def save_metrics(metrics_train, metrics_val, metrics_test, saving_path):
-    with open(f'{saving_path}/metrics_test.pkl', 'wb') as file:
+def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
+    with open(f'{saving_path}/metrics_test_{count}.pkl', 'wb') as file:
         pickle.dump(metrics_train, file)
-    with open(f'{saving_path}/metrics_val.pkl', 'wb') as file:
+    with open(f'{saving_path}/metrics_val_{count}.pkl', 'wb') as file:
         pickle.dump(metrics_val, file)
-    with open(f'{saving_path}/metrics_train.pkl', 'wb') as file:
+    with open(f'{saving_path}/metrics_train_{count}.pkl', 'wb') as file:
         pickle.dump(metrics_test, file)
 
 

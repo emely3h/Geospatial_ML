@@ -13,18 +13,22 @@ class EvaluationMetrics:
         self.jaccard = self.jaccard_coef(y_true, y_pred)
         self.jaccard_physical =self.jaccard_coef(y_true, y_physical)
 
+        print('conf matrix land')
         self.conf_matrix_land = self.confusion_matrix(y_true, y_pred, 2)
+        print('conf matrix valid')
         self.conf_matrix_valid = self.confusion_matrix(y_true, y_pred, 1)
+        print('conf matrix invalid')
         self.conf_matrix_invalid = self.confusion_matrix(y_true, y_pred, 0)
 
+        print('precision land')
         self.precision_land = self.precision(self.conf_matrix_land)
         self.sensitivity_recall_land = self.sensitivity_recall(self.conf_matrix_land)
         self.specificy_land = self.specificy(self.conf_matrix_land)
-
+        print('precision valid')
         self.precision_valid = self.precision(self.conf_matrix_valid)
         self.sensitivity_recall_valid = self.sensitivity_recall(self.conf_matrix_valid)
         self.specificy_valid = self.specificy(self.conf_matrix_valid)
-
+        print('precision invalid')
         self.precision_invalid = self.precision(self.conf_matrix_invalid)
         self.sensitivity_recall_invalid = self.sensitivity_recall(self.conf_matrix_invalid)
         self.specificy_invalid = self.specificy(self.conf_matrix_invalid)
@@ -83,7 +87,7 @@ class EvaluationMetrics:
 
         tn_mask = (flatten_true != label) & (flatten_pred != label)
         true_negatives = np.count_nonzero(tn_mask)
-
+        print(f'print confusion matrix \n true_positives: {true_positives}, false_positives: {false_positives}, true_negatives: {true_negatives}, false_negatives: {false_negatives}')
         return {
             'true_positives': true_positives,
             'false_positives': false_positives,
@@ -92,20 +96,35 @@ class EvaluationMetrics:
         }
 
     def precision(self, conf_matrix):
+        if conf_matrix['true_positives'] == 0 or conf_matrix['false_positives'] == 0:
+          print(f"Precision 0 values: {(conf_matrix['true_positives'])} {conf_matrix['false_positives']}")
+          return 0
         return conf_matrix['true_positives'] / (conf_matrix['true_positives'] + conf_matrix['false_positives'])
 
     def sensitivity_recall(self, conf_matrix):
+        if conf_matrix['true_positives'] == 0 or conf_matrix['false_negatives'] == 0:
+            print(f"Sensitivity 0 values: {(conf_matrix['true_positives'])} {conf_matrix['false_negatives']}")
+            return 0
         return conf_matrix['true_positives'] / (conf_matrix['true_positives'] + conf_matrix['false_negatives'])
 
     def negative_predictive(self, conf_matrix):
+        if conf_matrix['true_negatives'] == 0 or conf_matrix['false_negatives'] == 0:
+              print(f"negative_predictive Error 0 values: {conf_matrix['true_negatives']} {conf_matrix['false_negatives']}")
+              return 0
         return conf_matrix['true_negatives'] / (conf_matrix['true_negatives'] + conf_matrix['false_negatives'])
 
     def specificy(self, conf_matrix):
+        if conf_matrix['true_negatives'] == 0 or conf_matrix['false_positives'] == 0:
+              print(f"specificy 0 values: {conf_matrix['true_negatives']} {(conf_matrix['false_positives'])}")
+              return 0
         return conf_matrix['true_negatives'] / (conf_matrix['true_negatives'] + conf_matrix['false_positives'])
 
     def f1_scores(self, conf_matrix):
         prec = self.precision(conf_matrix)
         recall = self.sensitivity_recall(conf_matrix)
+        if prec + recall == 0:
+          print('f1 score 0')
+          return 0
         return 2 * prec * recall / (prec + recall)
 
     def print_metrics(self):
@@ -128,3 +147,11 @@ class EvaluationMetrics:
         print(f'f1_invalid: {self.f1_invalid}')
         print(f'f1_valid: {self.f1_valid}')
     # todo add pixel accuracy
+
+def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
+    with open(f'{saving_path}/metrics_test_{count}.pkl', 'wb') as file:
+        pickle.dump(metrics_train, file)
+    with open(f'{saving_path}/metrics_val_{count}.pkl', 'wb') as file:
+        pickle.dump(metrics_val, file)
+    with open(f'{saving_path}/metrics_train_{count}.pkl', 'wb') as file:
+        pickle.dump(metrics_test, file)
