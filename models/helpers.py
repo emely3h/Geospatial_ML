@@ -1,4 +1,5 @@
 from models.unet_model import unet_2d
+from tensorflow import keras
 from keras.losses import categorical_crossentropy
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
@@ -113,3 +114,13 @@ def initialize_saved_data(
     print("y_min:", np.min(y_mask), "y_max:", np.max(y_mask))
 
     return x_input, y_mask
+
+
+def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx():
+    y_true_f = keras.backend.flatten(y_true)
+    y_pred_f = keras.backend.flatten(y_pred)
+
+    intersection = keras.backend.sum(y_true_f * y_pred_f)
+    return (intersection + 1.0) / (
+        keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection + 1.0
+    )
