@@ -92,7 +92,7 @@ def get_mean_jaccard(all_metrics):
 
 def initialize_saved_data(
     split_x: np.ndarray, split_y: np.ndarray, tiles: int
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     print("Initializing saved data...")
     x_input = np.zeros((tiles, 256, 256, 5), dtype=np.float32)
     print("x_input shape:", x_input.shape)
@@ -113,7 +113,7 @@ def initialize_saved_data(
     print("y_mask shape:", y_mask.shape)
     print("y_min:", np.min(y_mask), "y_max:", np.max(y_mask))
 
-    return x_input, y_mask
+    return tuple([x_input, y_mask])
 
 
 def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx():
