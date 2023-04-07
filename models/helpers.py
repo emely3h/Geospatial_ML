@@ -10,7 +10,7 @@ from typing import Tuple
 
 def normalizing_encoding(
     encoded_x: np.ndarray, unencoded_y: np.ndarray
-) -> Tuple(np.ndarray, np.ndarray):
+) -> Tuple[np.ndarray, np.ndarray]:
     print("unencoded_y shape: ", unencoded_y.shape)
     print("\nEncoding data...")
     y_one_hot = to_categorical(unencoded_y, num_classes=3)
@@ -90,30 +90,30 @@ def get_mean_jaccard(all_metrics):
     print(f"Variance: {max(jaccard_array_physical) - min(jaccard_array_physical)}")
 
 
-# def initialize_saved_data(
-#     split_x: np.ndarray, split_y: np.ndarray, tiles: int
-# ) -> Tuple[np.ndarray, np.ndarray]:
-#     print("Initializing saved data...")
-#     x_input = np.zeros((tiles, 256, 256, 5), dtype=np.float32)
-#     print("x_input shape:", x_input.shape)
-#     print("x_min:", np.min(x_input), "x_max:", np.max(x_input))
+def initialize_saved_data(
+    split_x: np.ndarray, split_y: np.ndarray, tiles: int
+) -> Tuple[np.ndarray, np.ndarray]:
+    print("Initializing saved data...")
+    x_input = np.zeros((tiles, 256, 256, 5), dtype=np.float32)
+    print("x_input shape:", x_input.shape)
+    print("x_min:", np.min(x_input), "x_max:", np.max(x_input))
 
-#     print("\nCopying saved data to x_input...")
-#     np.copyto(x_input, split_x[0:tiles])
-#     print("x_input shape:", x_input.shape)
-#     print("x_min:", np.min(x_input), "x_max:", np.max(x_input))
+    print("\nCopying saved data to x_input...")
+    np.copyto(x_input, split_x[0:tiles])
+    print("x_input shape:", x_input.shape)
+    print("x_min:", np.min(x_input), "x_max:", np.max(x_input))
 
-#     print("\nInitializing y_mask...")
-#     y_mask = np.zeros((tiles, 256, 256), dtype=np.float32)
-#     print("y_mask shape:", y_mask.shape)
-#     print("y_min:", np.min(y_mask), "y_max:", np.max(y_mask))
+    print("\nInitializing y_mask...")
+    y_mask = np.zeros((tiles, 256, 256), dtype=np.float32)
+    print("y_mask shape:", y_mask.shape)
+    print("y_min:", np.min(y_mask), "y_max:", np.max(y_mask))
 
-#     print("\nCopying saved data to y_mask...")
-#     np.copyto(y_mask, split_y[0:tiles])
-#     print("y_mask shape:", y_mask.shape)
-#     print("y_min:", np.min(y_mask), "y_max:", np.max(y_mask))
+    print("\nCopying saved data to y_mask...")
+    np.copyto(y_mask, split_y[0:tiles])
+    print("y_mask shape:", y_mask.shape)
+    print("y_min:", np.min(y_mask), "y_max:", np.max(y_mask))
 
-#     return x_input, y_mask
+    return x_input, y_mask
 
 
 def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx():
