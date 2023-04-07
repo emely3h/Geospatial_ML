@@ -55,8 +55,8 @@ class Mask_Stats:
         )
 
 
-if __name__ == "__main__":
-    # 12 sec -> 4sec
-    y = np.zeros((6661, 256, 256), dtype=np.float32)
-    mask_stats = Mask_Stats(y)
-    mask_stats.print_stats()
+# if __name__ == "__main__":
+#     # 12 sec -> 4sec
+#     y = np.zeros((6661, 256, 256), dtype=np.float32)
+#     mask_stats = Mask_Stats(y)
+#     mask_stats.print_stats()
