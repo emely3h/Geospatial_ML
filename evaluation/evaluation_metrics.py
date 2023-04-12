@@ -8,27 +8,42 @@ class EvaluationMetrics:
     This class calculates and summarizes evaluation metrics based on the predicted and true labels.
     """
 
-    def __init__(self, y_true, y_pred, y_physical):
+    __slots__ = [
+        "jaccard",
+        "jaccard_physical",
+        "conf_matrix_land",
+        "conf_matrix_valid",
+        "conf_matrix_invalid",
+        "precision_land",
+        "sensitivity_recall_land",
+        "specificy_land",
+        "precision_valid",
+        "sensitivity_recall_valid",
+        "specificy_valid",
+        "precision_invalid",
+        "sensitivity_recall_invalid",
+        "specificy_invalid",
+        "f1_land",
+        "f1_invalid",
+        "f1_valid",
+    ]
 
+    def __init__(self, y_true: np.ndarray, y_pred: np.ndarray, y_physical: np.ndarray):
         self.jaccard = self.jaccard_coef(y_true, y_pred)
         self.jaccard_physical = self.jaccard_coef(y_true, y_physical)
 
-        print("conf matrix land")
         self.conf_matrix_land = self.confusion_matrix(y_true, y_pred, 2)
-        print("conf matrix valid")
         self.conf_matrix_valid = self.confusion_matrix(y_true, y_pred, 1)
-        print("conf matrix invalid")
         self.conf_matrix_invalid = self.confusion_matrix(y_true, y_pred, 0)
 
-        print("precision land")
         self.precision_land = self.precision(self.conf_matrix_land)
         self.sensitivity_recall_land = self.sensitivity_recall(self.conf_matrix_land)
         self.specificy_land = self.specificy(self.conf_matrix_land)
-        print("precision valid")
+
         self.precision_valid = self.precision(self.conf_matrix_valid)
         self.sensitivity_recall_valid = self.sensitivity_recall(self.conf_matrix_valid)
         self.specificy_valid = self.specificy(self.conf_matrix_valid)
-        print("precision invalid")
+
         self.precision_invalid = self.precision(self.conf_matrix_invalid)
         self.sensitivity_recall_invalid = self.sensitivity_recall(
             self.conf_matrix_invalid
@@ -215,4 +230,3 @@ if __name__ == "__main__":
     end_time = time.time()
     total_time = end_time - start_time
     print(f"Total execution time: {total_time} seconds")
-    # Without slots: Total execution time: 0.06692290306091309 seconds
