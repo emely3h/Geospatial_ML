@@ -6,7 +6,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 import pickle
 import numpy as np
 from typing import Tuple
-
+import tensorflow as tf
 
 def normalizing_encoding(
     encoded_x: np.ndarray, unencoded_y: np.ndarray
@@ -120,7 +120,14 @@ def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx
     y_true_f = keras.backend.flatten(y_true)
     y_pred_f = keras.backend.flatten(y_pred)
 
-    intersection = keras.backend.sum(y_true_f * y_pred_f)
-    return (intersection + 1.0) / (
-        keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection + 1.0
-    )
+    with tf.device('/cpu:0'):
+        y_true_f = tf.convert_to_tensor(y_true_f)
+        y_pred_f = tf.convert_to_tensor(y_pred_f)
+
+    with tf.device('/gpu:0'):
+        intersection = keras.backend.sum(y_true_f * y_pred_f)
+
+    with tf.device('/cpu:0'):
+        denominator = keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection + 1.0
+
+    return (intersection + 1.0) / denominator
