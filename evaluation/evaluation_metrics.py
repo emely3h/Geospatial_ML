@@ -3,6 +3,18 @@ from tensorflow import keras
 import pickle
 
 
+def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx():
+        y_true_f = keras.backend.flatten(y_true)
+        y_pred_f = keras.backend.flatten(y_pred)
+
+        intersection = keras.backend.sum(y_true_f * y_pred_f)
+        return (intersection + 1.0) / (
+            keras.backend.sum(y_true_f)
+            + keras.backend.sum(y_pred_f)
+            - intersection
+            + 1.0
+        )  # todo reason for +1?
+
 class EvaluationMetrics:
     """
     This class calculates and summarizes evaluation metrics based on the predicted and true labels.
@@ -30,7 +42,7 @@ class EvaluationMetrics:
 
     def __init__(self, y_true: np.ndarray, y_pred: np.ndarray, y_physical: np.ndarray):
         self.jaccard = self.jaccard_coef(y_true, y_pred)
-        self.jaccard_physical = self.jaccard_coef(y_true, y_physical)
+        self.jaccard_physical = jaccard_coef(y_true, y_physical)
 
         self.conf_matrix_land = self.confusion_matrix(y_true, y_pred, 2)
         self.conf_matrix_valid = self.confusion_matrix(y_true, y_pred, 1)
@@ -54,17 +66,6 @@ class EvaluationMetrics:
         self.f1_invalid = self.f1_scores(self.conf_matrix_invalid)
         self.f1_valid = self.f1_scores(self.conf_matrix_valid)
 
-    def jaccard_coef(self, y_true, y_pred):
-        y_true_f = keras.backend.flatten(y_true)
-        y_pred_f = keras.backend.flatten(y_pred)
-
-        intersection = keras.backend.sum(y_true_f * y_pred_f)
-        return (intersection + 1.0) / (
-            keras.backend.sum(y_true_f)
-            + keras.backend.sum(y_pred_f)
-            - intersection
-            + 1.0
-        )  # todo reason for +1?
 
     def jaccard_rounding_issue(self, y_true, y_pred):
         # revert one hot encoding => binary tensor [0, 0, 1] back to label [2] (3D array to 2D array)

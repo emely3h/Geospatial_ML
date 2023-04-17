@@ -125,28 +125,6 @@ def copy_data_to_arrays(
     return x_input, y_mask
 
 
-def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx():
-    y_true_f = keras.backend.flatten(y_true)
-    y_pred_f = keras.backend.flatten(y_pred)
-
-    with tf.device("/cpu:0"):
-        y_true_f = tf.convert_to_tensor(y_true_f)
-        y_pred_f = tf.convert_to_tensor(y_pred_f)
-
-    with tf.device("/gpu:0"):
-        intersection = keras.backend.sum(y_true_f * y_pred_f)
-
-    with tf.device("/cpu:0"):
-        denominator = (
-            keras.backend.sum(y_true_f)
-            + keras.backend.sum(y_pred_f)
-            - intersection
-            + 1.0
-        )
-
-    return (intersection + 1.0) / denominator
-
-
 def save_pickle(data: any, path: str, name: str) -> None:
     print(f"Saving {name}.pkl to {path}...")
     with open(f"{path}/{name}.pkl", "wb") as file:
