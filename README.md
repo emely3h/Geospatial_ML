@@ -13,7 +13,7 @@ To get started with this project, follow the steps below:
 2.  Create and activate a virtual environment by running the following commands:
 
     ```bash
-    python3 -m venv .venv
+    python3.9 -m venv .venv
     source .venv/bin/activate
     ```
 
@@ -36,12 +36,13 @@ To set up the project, follow these steps:
 1. Create an empty `/data` folder in the project root directory.
 2. Copy the two subfolders `unflagged` and `flags_applied` from the original data folder into the project `/data` folder.
 3. Create a `.env` file in the root directory and define the `DATA_PATH` variable
-3. Run `main.py` in the `/prepare_data` directory to prepare the data for analysis.
-
+4. Run `main.py` in the `/prepare_data` directory to prepare the data for analysis.
 
 ## Working with google colab
+
 _Only edit and push jupyter notebooks on google colab, edit and push .py scripts always locally!_
 
 As it is only possible to push changes on jupyter notebooks to github from google colab it is best to do all changes in the scripts locally.
 Run all the prepare data scripts locally and only store the final numpy array in google drive.
+
 - The MachineLearning folder will appear in your google drive `shared with me` subfolder. To access it from within colab you need to create a shortcut. (left click on the folder, 'add shortcut')
