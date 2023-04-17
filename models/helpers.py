@@ -91,28 +91,28 @@ def get_mean_jaccard(all_metrics):
     print(f"Variance: {max(jaccard_array_physical) - min(jaccard_array_physical)}")
 
 
-def initialize_saved_data(
+def copy_data_to_arrays(
     split_x: np.ndarray, split_y: np.ndarray, tiles: int
 ) -> Tuple[np.ndarray, np.ndarray]:
-    print("Initializing saved data...")
+    print("Copying data to arrays...")
     x_input = np.zeros((tiles, 256, 256, 5), dtype=np.float32)
     print("x_input shape:", x_input.shape)
-    print("x_min:", np.min(x_input), "x_max:", np.max(x_input))
+    print("x_input min value:", np.min(x_input), "x_input max value:", np.max(x_input))
 
-    print("\nCopying saved data to x_input...")
     np.copyto(x_input, split_x[0:tiles])
+    print("Data copied to x_input...")
     print("x_input shape:", x_input.shape)
-    print("x_min:", np.min(x_input), "x_max:", np.max(x_input))
+    print("x_input min value:", np.min(x_input), "x_input max value:", np.max(x_input))
 
-    print("\nInitializing y_mask...")
     y_mask = np.zeros((tiles, 256, 256), dtype=np.float32)
+    print("\nInitializing y_mask...")
     print("y_mask shape:", y_mask.shape)
-    print("y_min:", np.min(y_mask), "y_max:", np.max(y_mask))
+    print("y_mask min value:", np.min(y_mask), "y_mask max value:", np.max(y_mask))
 
-    print("\nCopying saved data to y_mask...")
     np.copyto(y_mask, split_y[0:tiles])
+    print("Data copied to y_mask...")
     print("y_mask shape:", y_mask.shape)
-    print("y_min:", np.min(y_mask), "y_max:", np.max(y_mask))
+    print("y_mask min value:", np.min(y_mask), "y_mask max value:", np.max(y_mask))
 
     return x_input, y_mask
 
