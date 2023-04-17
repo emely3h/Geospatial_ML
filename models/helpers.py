@@ -92,14 +92,18 @@ def get_mean_jaccard(all_metrics):
 
 
 def copy_data_to_arrays(
-    split_x: np.ndarray, split_y: np.ndarray, tiles: int
+    split_x: np.ndarray, split_y: np.ndarray, tiles: int, chunk_size: int = 1024
 ) -> Tuple[np.ndarray, np.ndarray]:
     print("Copying data to arrays...")
     x_input = np.zeros((tiles, 256, 256, 5), dtype=np.float32)
     print("x_input shape:", x_input.shape)
     print("x_input min value:", np.min(x_input), "x_input max value:", np.max(x_input))
 
-    np.copyto(x_input, split_x[0:tiles])
+    for i in range(0, tiles, chunk_size):
+        start = i
+        end = min(i + chunk_size, tiles)
+        np.copyto(x_input[start:end], split_x[start:end])
+
     print("Data copied to x_input...")
     print("x_input shape:", x_input.shape)
     print("x_input min value:", np.min(x_input), "x_input max value:", np.max(x_input))
@@ -109,7 +113,11 @@ def copy_data_to_arrays(
     print("y_mask shape:", y_mask.shape)
     print("y_mask min value:", np.min(y_mask), "y_mask max value:", np.max(y_mask))
 
-    np.copyto(y_mask, split_y[0:tiles])
+    for i in range(0, tiles, chunk_size):
+        start = i
+        end = min(i + chunk_size, tiles)
+        np.copyto(y_mask[start:end], split_y[start:end])
+
     print("Data copied to y_mask...")
     print("y_mask shape:", y_mask.shape)
     print("y_mask min value:", np.min(y_mask), "y_mask max value:", np.max(y_mask))
