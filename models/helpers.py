@@ -92,7 +92,7 @@ def get_mean_jaccard(all_metrics):
 
 
 def copy_data_to_arrays(
-    split_x: np.ndarray, split_y: np.ndarray, tiles: int, chunk_size: int = 1024
+    split_x: np.ndarray, split_y: np.ndarray, tiles: int, chunk_size: int = 500
 ) -> Tuple[np.ndarray, np.ndarray]:
     print("Copying data to arrays...")
     x_input = np.zeros((tiles, 256, 256, 5), dtype=np.float32)
@@ -125,26 +125,39 @@ def copy_data_to_arrays(
     return x_input, y_mask
 
 
-def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx():
+def jaccard_coef(
+    y_true: np.ndarray, y_pred: np.ndarray, chunk_size: int = 500
+) -> keras.backend.floatx():
     y_true_f = keras.backend.flatten(y_true)
     y_pred_f = keras.backend.flatten(y_pred)
+    num_pixels = y_true_f.shape[0]
+    num_chunks = (
+        num_pixels + chunk_size - 1
+    ) // chunk_size  # Round up to nearest integer
 
-    with tf.device("/cpu:0"):
-        y_true_f = tf.convert_to_tensor(y_true_f)
-        y_pred_f = tf.convert_to_tensor(y_pred_f)
+    intersection_sum = 0.0
+    y_true_sum = 0.0
+    y_pred_sum = 0.0
 
-    with tf.device("/gpu:0"):
-        intersection = keras.backend.sum(y_true_f * y_pred_f)
+    for i in range(num_chunks):
+        start_idx = i * chunk_size
+        end_idx = min((i + 1) * chunk_size, num_pixels)
+        chunk_size = end_idx - start_idx
 
-    with tf.device("/cpu:0"):
-        denominator = (
-            keras.backend.sum(y_true_f)
-            + keras.backend.sum(y_pred_f)
-            - intersection
-            + 1.0
-        )
+        with tf.device("/cpu:0"):
+            chunk_y_true = tf.convert_to_tensor(y_true_f[start_idx:end_idx])
+            chunk_y_pred = tf.convert_to_tensor(y_pred_f[start_idx:end_idx])
 
-    return (intersection + 1.0) / denominator
+        with tf.device("/gpu:0"):
+            intersection = keras.backend.sum(chunk_y_true * chunk_y_pred)
+
+        with tf.device("/cpu:0"):
+            y_true_sum += keras.backend.sum(chunk_y_true)
+            y_pred_sum += keras.backend.sum(chunk_y_pred)
+            intersection_sum += intersection
+
+    denominator = y_true_sum + y_pred_sum - intersection_sum + 1.0
+    return (intersection_sum + 1.0) / denominator
 
 
 def save_pickle(data: any, path: str, name: str) -> None:

@@ -30,7 +30,10 @@ def create_mask(root_folder, max_image_pixels):
         print(f"Saved {mask_array_path}")
 
 
-def create_physical_mask(x_input: np.ndarray) -> np.ndarray:
+def create_physical_mask(x_input: np.ndarray, chunk_size: int=500) -> np.ndarray:
     wq_channel = x_input[:, :, :, 4]
-    labeled = label_pixels(wq_channel)
+    labeled = np.zeros(wq_channel.shape, dtype=np.int32)
+    for i in range(0, wq_channel.shape[0], chunk_size):
+        chunk = wq_channel[i:i+chunk_size]
+        labeled[i:i+chunk_size] = label_pixels(chunk)
     return to_categorical(labeled, num_classes=3)
