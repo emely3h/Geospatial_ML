@@ -125,6 +125,25 @@ def copy_data_to_arrays(
     return x_input, y_mask
 
 
+def to_categorical_chunked(
+    arr: np.ndarray, num_classes: int, chunk_size: int = 500
+) -> np.ndarray:
+    num_samples = arr.shape[0]
+    num_chunks = (num_samples + chunk_size - 1) // chunk_size
+
+    cat_arr = np.zeros((num_samples, num_classes), dtype=np.float32)
+
+    for i in range(num_chunks):
+        start_idx = i * chunk_size
+        end_idx = min((i + 1) * chunk_size, num_samples)
+        chunk_arr = arr[start_idx:end_idx]
+
+        one_hot_chunk = to_categorical(chunk_arr, num_classes=num_classes)
+        cat_arr[start_idx:end_idx] = one_hot_chunk
+
+    return cat_arr
+
+
 def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx():
     y_true_f = keras.backend.flatten(y_true)
     y_pred_f = keras.backend.flatten(y_pred)
