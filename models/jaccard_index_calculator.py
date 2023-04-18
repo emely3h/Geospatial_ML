@@ -39,9 +39,9 @@ class JaccardIndexCalculator:
         self.current_chunk_index = 0
         self.all_intersections = 0
         self.all_unions = 0
-        self.each_intersection = np.zeros(num_classes)
-        self.each_union = np.zeros(num_classes)
-        self.each_jaccard_index = np.zeros(num_classes)
+        self.each_intersection = np.zeros(num_classes + 1)
+        self.each_union = np.zeros(num_classes + 1)
+        self.each_jaccard_index = np.zeros(num_classes + 1)
 
     def __iter__(self):
         return self
@@ -76,18 +76,26 @@ class JaccardIndexCalculator:
         return x_input, y_mask
 
     def intersection_union(self, y_true: np.ndarray, y_pred: np.ndarray) -> None:
-        for i in range(self.num_classes):
-            y_true_f = keras.backend.flatten(y_true[...,i])
-            print("y_true_f: ", y_true_f)
-            y_pred_f = keras.backend.flatten(y_pred[...,i])
+        for i in range(self.num_classes + 1):
+            if not i == 3:
+                y_true_f = keras.backend.flatten(y_true[..., i])
+                y_pred_f = keras.backend.flatten(y_pred[..., i])
+            else:
+                y_true_f = keras.backend.flatten(y_true)
+                y_pred_f = keras.backend.flatten(y_pred)
             intersection = keras.backend.sum(y_true_f * y_pred_f)
             union = (
                 keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection
             )
+            print("class: ", i)
+            print("intersection: ", intersection)
+            print("union: ", union)
+
             self.each_intersection[i] += intersection
             self.each_union[i] += union
-            self.all_intersections += intersection
-            self.all_unions += union
+            if not i == 3:
+                self.all_intersections += intersection
+                self.all_unions += union
         return
 
     def calculate_mean_jaccard_index(self) -> dict:
@@ -97,8 +105,8 @@ class JaccardIndexCalculator:
         print("total tiles: ", self.tiles)
         print("chunk size: ", self.chunk_size)
 
-        for i in range(self.num_classes):
-            class_name = ["invalid", "valid", "land"]
+        for i in range(self.num_classes + 1):
+            class_name = ["invalid", "valid", "land", "all_original"]
             print("class name: ", class_name[i])
             print("each_intersection: ", self.each_intersection[i])
             print("each_union: ", self.each_union[i])
@@ -111,9 +119,11 @@ class JaccardIndexCalculator:
         print("total of unions: ", self.all_unions)
         all_mean_jaccard = (self.all_intersections + 1.0) / (self.all_unions + 1.0)
         print("mean of Jaccard Index: ", all_mean_jaccard)
-        return {
-            "all_mean_jaccard": all_mean_jaccard,
-            "each_jaccard_index": self.each_jaccard_index,
-        }
 
-#invalid, valid, land
+        return {
+            "mean_jaccard_sum": all_mean_jaccard,
+            class_name[0]: self.each_jaccard_index[0],
+            class_name[1]: self.each_jaccard_index[1],
+            class_name[2]: self.each_jaccard_index[2],
+            class_name[3]: self.each_jaccard_index[3],
+        }
