@@ -55,9 +55,9 @@ class JaccardIndexCalculator:
         print("Step2: Creating Physical Mask")
         pred_physical = create_physical_mask(x_input_chunk)
         print("Step3: Hot Encoding")
-        y_one_hot = to_categorical(y_mask_chunk, num_classes=self.num_classes)
+        y_true = to_categorical(y_mask_chunk, num_classes=self.num_classes)
         print("Step4: Calculate Intersection and Union")
-        self.intersection_union(pred_physical, y_one_hot)
+        self.intersection_union(y_true=y_true, y_pred=pred_physical)
 
         print("\n")
         self.current_chunk_index += 1
@@ -77,8 +77,9 @@ class JaccardIndexCalculator:
 
     def intersection_union(self, y_true: np.ndarray, y_pred: np.ndarray) -> None:
         for i in range(self.num_classes):
-            y_true_f = keras.backend.flatten(y_true[:, :, :, i])
-            y_pred_f = keras.backend.flatten(y_pred[:, :, :, i])
+            y_true_f = keras.backend.flatten(y_true[...,i])
+            print("y_true_f: ", y_true_f)
+            y_pred_f = keras.backend.flatten(y_pred[...,i])
             intersection = keras.backend.sum(y_true_f * y_pred_f)
             union = (
                 keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection
@@ -97,7 +98,8 @@ class JaccardIndexCalculator:
         print("chunk size: ", self.chunk_size)
 
         for i in range(self.num_classes):
-            print("class: ", i)
+            class_name = ["invalid", "valid", "land"]
+            print("class name: ", class_name[i])
             print("each_intersection: ", self.each_intersection[i])
             print("each_union: ", self.each_union[i])
             self.each_jaccard_index[i] = (self.each_intersection[i] + 1.0) / (
@@ -113,3 +115,5 @@ class JaccardIndexCalculator:
             "all_mean_jaccard": all_mean_jaccard,
             "each_jaccard_index": self.each_jaccard_index,
         }
+
+#invalid, valid, land
