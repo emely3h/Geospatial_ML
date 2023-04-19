@@ -32,7 +32,7 @@ To run this project, you will need the following:
 
 - Python 3
 - Jupyter Notebook
-- The packages listed in `requirements.txt`
+
 
 ## Prepare Data
 
