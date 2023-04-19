@@ -8,18 +8,23 @@ The aim of this project is to train a neural network to identify pixels that pro
 ## Getting Started
 
 To get started with this project, follow the steps below:
+We are using poetry as a dependency manager.
+
+One time
+
+Install Python 3.10≤
+
+Install [poetry](https://python-poetry.org/)
 
 1.  Clone the repository using `git clone <repository_url>`.
-2.  Create and activate a virtual environment by running the following commands:
 
-    ```bash
-    python3.9 -m venv .venv
-    source .venv/bin/activate
-    ```
-
-3.  Install the required packages by running `pip install -r requirements.txt` in the terminal.
-4.  Start Jupyter Notebook by running `jupyter lab` in the terminal.
-5.  To deactivate the virtual environment, simply run `deactivate` in the terminal.
+2. Activate poetry virtual environment.
+```
+# Create a virtual environment
+$ poetry shell
+# Install all packages
+$ poetry install
+```
 
 ## Requirements
 
