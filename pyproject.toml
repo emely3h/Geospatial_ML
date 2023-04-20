@@ -1,15 +1,17 @@
 [tool.poetry]
-name = "geospatial_ml"
+name = "geospatial-ml"
 version = "0.1.0"
 description = ""
 authors = ["Takahiro Mitsui <takahiro.mitsui@code.berlin>"]
+readme = "README.md"
+packages = [{include = "geospatial_ml"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
 tensorflow = "^2.12.0"
+black = "^23.3.0"
 
-[tool.poetry.dev-dependencies]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
