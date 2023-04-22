@@ -2,8 +2,27 @@ import numpy as np
 from tensorflow import keras
 import pickle
 
+class ConfusionMatrix:
+    __slots__ = [
+        "true_positives",
+        "false_positives",
+        "true_negatives",
+        "false_negatives"
+    ]
 
-def get_confusion_matrix(self, y_true, y_pred, label):
+    def __init__(self, tp=0, fp=0, tn=0, fn=0):
+        self.true_positives = tp
+        self.false_positives = fp
+        self.true_negatives = tn
+        self.false_negatives = fn
+
+    def add_chunk(self, conf_matrix):
+        self.true_positives += conf_matrix.true_positives
+        self.false_positives += conf_matrix.false_positives
+        self.true_negatives += conf_matrix.true_negatives
+        self.false_negatives += conf_matrix.false_negatives
+
+def get_confusion_matrix(y_true, y_pred, label):
     # revert one hot encoding => binary tensor [0, 0, 1] back to label [2] (3D array to 2D array)
     label_map_true = np.argmax(y_true, axis=-1)
     label_map_pred = np.argmax(y_pred, axis=-1)
@@ -22,15 +41,8 @@ def get_confusion_matrix(self, y_true, y_pred, label):
 
     tn_mask = (flatten_true != label) & (flatten_pred != label)
     true_negatives = np.count_nonzero(tn_mask)
-    print(
-        f"print confusion matrix \n true_positives: {true_positives}, false_positives: {false_positives}, true_negatives: {true_negatives}, false_negatives: {false_negatives}"
-    )
-    return {
-        "true_positives": true_positives,
-        "false_positives": false_positives,
-        "true_negatives": true_negatives,
-        "false_negatives": false_negatives,
-    }
+
+    return ConfusionMatrix(tp=true_positives, fp=false_positives, tn=true_negatives, fn=false_negatives)
 
 
 def get_intersections_unions(y_true: np.ndarray, y_pred: np.ndarray):
@@ -39,11 +51,10 @@ def get_intersections_unions(y_true: np.ndarray, y_pred: np.ndarray):
     for label in range(3):
         y_true_f = keras.backend.flatten(y_true[..., label])
         y_pred_f = keras.backend.flatten(y_pred[..., label])
+
         intersection = keras.backend.sum(y_true_f * y_pred_f)
         union = (keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection)
 
-        print(f"chunk_jaccard_{label}: {(intersection + 1.0) / (union + 1.0)}, chunk_intersection: {intersection}, "
-              f"chunk_union: {union}")
         intersections.append(intersection)
         unions.append(union)
     return intersections, unions

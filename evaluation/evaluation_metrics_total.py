@@ -13,6 +13,10 @@ class EvaluationMetricsTotal:
         "jaccard_valid",
         "jaccard_land",
 
+        "conf_matrix_invalid",
+        "conf_matrix_valid",
+        "conf_matrix_land",
+
         "precision_invalid",
         "precision_valid",
         "precision_land",
@@ -30,9 +34,9 @@ class EvaluationMetricsTotal:
         "f1_land",
     ]
 
-    def __init__(self, y_true: np.memmap, y_pred: np.memmap, num_tiles):
+    def __init__(self, y_true: np.memmap, y_pred: np.memmap):
 
-        self.chunk_jaccard_matrix = ChunkJaccardMatrix(y_true, y_pred, num_tiles)
+        self.chunk_jaccard_matrix = ChunkJaccardMatrix(y_true, y_pred)
 
         self.mean_jaccard = self.chunk_jaccard_matrix.mean_jaccard
         self.jaccard_invalid = self.chunk_jaccard_matrix.jaccard_invalid
@@ -62,43 +66,43 @@ class EvaluationMetricsTotal:
         self.f1_valid = self.f1_scores(self.conf_matrix_valid)
 
     def precision(self, conf_matrix):
-        if conf_matrix["true_positives"] == 0 or conf_matrix["false_positives"] == 0:
+        if conf_matrix.true_positives == 0 or conf_matrix.false_positives == 0:
             print(
-                f"Precision 0 values: {(conf_matrix['true_positives'])} {conf_matrix['false_positives']}"
+                f"Precision 0 values: {(conf_matrix.true_positives)} {conf_matrix.false_positives}"
             )
             return 0
-        return conf_matrix["true_positives"] / (
-            conf_matrix["true_positives"] + conf_matrix["false_positives"]
+        return conf_matrix.true_positives / (
+            conf_matrix.true_positives + conf_matrix.false_positives
         )
 
     def sensitivity_recall(self, conf_matrix):
-        if conf_matrix["true_positives"] == 0 or conf_matrix["false_negatives"] == 0:
+        if conf_matrix.true_positives == 0 or conf_matrix.false_negatives == 0:
             print(
-                f"Sensitivity 0 values: {(conf_matrix['true_positives'])} {conf_matrix['false_negatives']}"
+                f"Sensitivity 0 values: {(conf_matrix.true_positives)} {conf_matrix.false_negatives}"
             )
             return 0
-        return conf_matrix["true_positives"] / (
-            conf_matrix["true_positives"] + conf_matrix["false_negatives"]
+        return conf_matrix.true_positives / (
+            conf_matrix.true_positives + conf_matrix.false_negatives
         )
 
     def negative_predictive(self, conf_matrix):
-        if conf_matrix["true_negatives"] == 0 or conf_matrix["false_negatives"] == 0:
+        if conf_matrix.true_negatives == 0 or conf_matrix.false_negatives == 0:
             print(
-                f"negative_predictive Error 0 values: {conf_matrix['true_negatives']} {conf_matrix['false_negatives']}"
+                f"negative_predictive Error 0 values: {conf_matrix.true_negatives} {conf_matrix.false_negatives}"
             )
             return 0
-        return conf_matrix["true_negatives"] / (
-            conf_matrix["true_negatives"] + conf_matrix["false_negatives"]
+        return conf_matrix.true_negatives / (
+            conf_matrix.true_negatives + conf_matrix.false_negatives
         )
 
     def specificy(self, conf_matrix):
-        if conf_matrix["true_negatives"] == 0 or conf_matrix["false_positives"] == 0:
+        if conf_matrix.true_negatives == 0 or conf_matrix.false_positives == 0:
             print(
-                f"specificy 0 values: {conf_matrix['true_negatives']} {(conf_matrix['false_positives'])}"
+                f"specificy 0 values: {conf_matrix.true_negatives} {(conf_matrix.false_positives)}"
             )
             return 0
-        return conf_matrix["true_negatives"] / (
-            conf_matrix["true_negatives"] + conf_matrix["false_positives"]
+        return conf_matrix.true_negatives / (
+            conf_matrix.true_negatives + conf_matrix.false_positives
         )
 
     def f1_scores(self, conf_matrix):

@@ -1,5 +1,6 @@
 import numpy as np
-from helpers import get_intersections_unions, get_confusion_matrix
+from helpers import get_intersections_unions, get_confusion_matrix, ConfusionMatrix
+from tensorflow.keras.utils import to_categorical
 
 
 class ChunkJaccardMatrix:
@@ -11,12 +12,13 @@ class ChunkJaccardMatrix:
         "conf_matrix_land",
         "conf_matrix_valid",
         "conf_matrix_invalid",
-        "invalid_inter_union",
-        "valid_inter_union",
-        "land_inter_union",
+        "intersections",
+        "unions",
         "current_chunk_index",
         "num_chunks",
-        "num_tiles",
+        "chunk_size",
+        "y_true",
+        "y_pred",
         "mean_jaccard",
         "jaccard_invalid",
         "jaccard_valid",
@@ -24,18 +26,19 @@ class ChunkJaccardMatrix:
 
     ]
 
-    def __init__(self, y_true: np.memmap, y_pred: np.memmap, num_tiles: int, chunk_size=1000):
-        self.conf_matrix_land = self.confusion_matrix(y_true, y_pred, 2)
-        self.conf_matrix_valid = self.confusion_matrix(y_true, y_pred, 1)
-        self.conf_matrix_invalid = self.confusion_matrix(y_true, y_pred, 0)
+    def __init__(self, y_true: np.memmap, y_pred: np.memmap, chunk_size=1000):
+        self.conf_matrix_land = ConfusionMatrix()
+        self.conf_matrix_valid = ConfusionMatrix()
+        self.conf_matrix_invalid = ConfusionMatrix()
 
-        self.invalid_inter_union = (0, 0)
-        self.valid_inter_union = (0, 0)
-        self.land_inter_union = (0, 0)
+        self.intersections = [0, 0, 0]
+        self.unions = [0, 0, 0]
 
         self.current_chunk_index = 0
-        self.num_chunks = num_tiles // chunk_size
-        self.num_tiles = num_tiles
+        self.num_chunks = y_true.shape[0] // chunk_size
+        self.chunk_size = chunk_size
+        self.y_true = y_true
+        self.y_pred = y_pred
 
         self.mean_jaccard = 0
         self.jaccard_invalid = 0
@@ -50,26 +53,29 @@ class ChunkJaccardMatrix:
     def __next__(self):
         if self.current_chunk_index >= self.num_chunks:
             raise StopIteration
+
         start = self.current_chunk_index * self.chunk_size
         end = start + self.chunk_size
         if self.current_chunk_index == self.num_chunks:
             end = self.tiles
+        print(f'Chunk {self.current_chunk_index} [{start}:{end}]')
 
-        pred_chunk = np.argmax(self.y_true[start:end], axis=-1)
+        pred_chunk = np.argmax(self.y_pred[start:end], axis=-1)
+        pred_chunk = to_categorical(pred_chunk, num_classes=3)
+
 
         y_true_chunk = np.copy(self.y_true[start:end])
+        y_true_chunk = to_categorical(y_true_chunk, num_classes=3)
 
         chunk_intersections, chunk_unions = get_intersections_unions(y_true_chunk, pred_chunk)
 
         for label in range(3):
-            self.invalid_inter_union[label] += chunk_intersections[label]
-            self.invalid_inter_union[label] += chunk_unions[label]
+            self.intersections[label] += chunk_intersections[label]
+            self.unions[label] += chunk_unions[label]
 
-        chunk_confusion_matrix = get_confusion_matrix(y_true_chunk, pred_chunk)
-        self.true_positives += chunk_confusion_matrix["true_positives"]
-        self.false_positives += chunk_confusion_matrix["false_positives"]
-        self.true_negatives += chunk_confusion_matrix["true_negatives"]
-        self.false_negatives += chunk_confusion_matrix["false_negatives"]
+        self.conf_matrix_invalid.add_chunk(get_confusion_matrix(y_true_chunk, pred_chunk, 0))
+        self.conf_matrix_valid.add_chunk(get_confusion_matrix(y_true_chunk, pred_chunk, 1))
+        self.conf_matrix_land.add_chunk(get_confusion_matrix(y_true_chunk, pred_chunk, 2))
 
         self.current_chunk_index += 1
 
@@ -79,9 +85,15 @@ class ChunkJaccardMatrix:
         self.calculate_jaccards()
 
     def calculate_jaccards(self):
-        self.jaccard_invalid = (self.invalid_inter_union[0] + 1.0) / (self.invalid_inter_union[1] + 1.0)
-        self.jaccard_valid = (self.valid_inter_union[0] + 1.0) / (self.valid_inter_union[1] + 1.0)
-        self.jaccard_land = (self.land_inter_union[0] + 1.0) / (self.land_inter_union[1] + 1.0)
-        total_intersection = self.invalid_inter_union[0] + self.valid_inter_union[0] + self.land_inter_union[0]
-        total_union = self.invalid_inter_union[1] + self.valid_inter_union[1] + self.land_inter_union[1]
+        jaccards = []
+        total_intersection = 0
+        total_union = 0
+        for label in range(3):
+            jaccards.append((self.intersections[label] + 1.0) / (self.unions[label] + 1.0))
+            total_intersection += self.intersections[label]
+            total_union += self.unions[label]
+
+        self.jaccard_invalid = jaccards[0]
+        self.jaccard_valid = jaccards[1]
+        self.jaccard_land = jaccards[2]
         self.mean_jaccard = (total_intersection + 1.0) / (total_union + 1.0)
