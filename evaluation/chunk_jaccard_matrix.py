@@ -1,5 +1,5 @@
 import numpy as np
-from helpers import get_intersections_unions, get_confusion_matrix, ConfusionMatrix
+from evaluation.helpers import get_intersections_unions, get_confusion_matrix, ConfusionMatrix
 from tensorflow.keras.utils import to_categorical
 
 
