@@ -2,6 +2,7 @@ import numpy as np
 from tensorflow import keras
 import pickle
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 
 
 class ConfusionMatrix:
@@ -98,3 +99,27 @@ def plot_loss_acc(plots, y_scale, model_history, scale):
     plt.show()
 
 
+def display_image(display_list):
+    plt.figure(figsize=(15, 15))
+
+    title = ['Input Image', 'True Mask', 'Predicted Mask']
+    colors = ['red', 'blue', 'yellow']
+    cmap = ListedColormap(colors)
+    for i in range(len(display_list)):
+        plt.subplot(1, len(display_list), i + 1)
+        plt.title(title[i])
+        if i != 0:
+            if i == 2:
+                display_list[i] = np.argmax(display_list[i], axis=-1)
+
+            plt.imshow(display_list[i], cmap=cmap)
+        else:
+            plt.imshow(keras.utils.array_to_img(display_list[i]))
+    plt.show()
+
+
+def display(list_train, list_mask, list_pred):
+    for idx, img_train in enumerate(list_train):
+        sample_image, sample_mask, sample_pred = list_train[idx], list_mask[idx], list_pred[idx]
+        sample_image = sample_image[..., :4]
+        display_image([sample_image, sample_mask, sample_pred])

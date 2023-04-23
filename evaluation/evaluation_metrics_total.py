@@ -118,19 +118,19 @@ class EvaluationMetricsTotal:
         print(f"mean jaccard index: {self.mean_jaccard}")
         print(f"invalid jaccard index: {self.jaccard_invalid}")
         print(f"valid jaccard index: {self.jaccard_valid}")
-        print(f"land jaccard index: {self.jaccard_land} \n")
+        print(f"land jaccard index: {self.jaccard_land}\n")
 
-        print(f"precision_invalid: {self.precision_invalid} \n")
+        print(f"precision_invalid: {self.precision_invalid}")
         print(f"precision_valid: {self.precision_valid}")
-        print(f"precision_land: {self.precision_land}")
+        print(f"precision_land: {self.precision_land}\n")
 
-        print(f"recall_invalid: {self.sensitivity_recall_invalid} \n")
+        print(f"recall_invalid: {self.sensitivity_recall_invalid}")
         print(f"recall_valid: {self.sensitivity_recall_valid}")
-        print(f"recall_land: {self.sensitivity_recall_land}")
+        print(f"recall_land: {self.sensitivity_recall_land}\n")
 
-        print(f"specificy_invalid: {self.specificy_invalid} \n")
+        print(f"specificy_invalid: {self.specificy_invalid}")
         print(f"specificy_valid: {self.specificy_valid}")
-        print(f"specificy_land: {self.specificy_land}")
+        print(f"specificy_land: {self.specificy_land}\n")
 
         print(f"f1_valid: {self.f1_valid}")
         print(f"f1_invalid: {self.f1_invalid}")
