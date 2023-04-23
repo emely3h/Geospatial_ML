@@ -75,22 +75,23 @@ def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
 
 def plot_loss_acc(plots, y_scale, model_history, scale):
     loss = model_history['loss']
+    x = my_array = [i for i in range(100)]
     val_loss = model_history['val_loss']
     acc = model_history['accuracy']
     val_acc = model_history['val_accuracy']
 
     plt.figure(figsize=(10, 6))
     if 'loss' in plots:
-        plt.plot(loss, 'g', label='Training Loss')
+        plt.scatter(x, loss, s=10, label='Training Loss')
 
     if 'accuracy' in plots:
-        plt.plot(acc, 'y', label='Training Accuracy')
+        plt.scatter(x, acc, s=10, label='Training Accuracy')
 
     if 'val_loss' in plots:
-        plt.plot(val_loss, 'r', label='Validation Loss')
+        plt.scatter(x, val_loss, s=10, label='Validation Loss')
 
     if 'val_accuracy' in plots:
-        plt.plot(val_acc, 'b', label='Validation Accuracy')
+        plt.scatter(x, val_acc, s=10, label='Validation Accuracy')
 
     plt.xlabel('Epoch')
     plt.ylabel('Value')
