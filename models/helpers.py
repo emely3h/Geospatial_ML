@@ -150,10 +150,10 @@ def get_filenames(experiment):
 def predictions_for_models(train_generator, val_generator, test_generator, experiment, test_val_tiles, train_tiles, batch_size, model_range=None):
     saved_models = get_filenames(experiment)
     if model_range is None:
-        model_range = len(saved_models)
+        model_range = (0, len(saved_models))
     print(f'All found models: {saved_models}')
 
-    for idx in range(model_range):
+    for idx in range(model_range[0], model_range[1]):
         print(f'Make predictions with model {saved_models[idx]}')
         model = load_model(f'../models/{experiment}/{saved_models[idx]}')
         num_run = saved_models[idx].split('_')[-1][0]
