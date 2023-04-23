@@ -1,6 +1,7 @@
 import numpy as np
 from evaluation.chunk_jaccard_matrix import ChunkJaccardMatrix
 
+
 class EvaluationMetricsTotal:
     """
     This class calculates and summarizes evaluation metrics based on the predicted and true labels.
@@ -72,7 +73,7 @@ class EvaluationMetricsTotal:
             )
             return 0
         return conf_matrix.true_positives / (
-            conf_matrix.true_positives + conf_matrix.false_positives
+                conf_matrix.true_positives + conf_matrix.false_positives
         )
 
     def sensitivity_recall(self, conf_matrix):
@@ -82,7 +83,7 @@ class EvaluationMetricsTotal:
             )
             return 0
         return conf_matrix.true_positives / (
-            conf_matrix.true_positives + conf_matrix.false_negatives
+                conf_matrix.true_positives + conf_matrix.false_negatives
         )
 
     def negative_predictive(self, conf_matrix):
@@ -92,7 +93,7 @@ class EvaluationMetricsTotal:
             )
             return 0
         return conf_matrix.true_negatives / (
-            conf_matrix.true_negatives + conf_matrix.false_negatives
+                conf_matrix.true_negatives + conf_matrix.false_negatives
         )
 
     def specificy(self, conf_matrix):
@@ -102,7 +103,7 @@ class EvaluationMetricsTotal:
             )
             return 0
         return conf_matrix.true_negatives / (
-            conf_matrix.true_negatives + conf_matrix.false_positives
+                conf_matrix.true_negatives + conf_matrix.false_positives
         )
 
     def f1_scores(self, conf_matrix):
@@ -119,19 +120,18 @@ class EvaluationMetricsTotal:
         print(f"valid jaccard index: {self.jaccard_valid}")
         print(f"land jaccard index: {self.jaccard_land} \n")
 
-
-        print(f"precision_land: {self.precision_land}")
-        print(f"precision_valid: {self.precision_valid}")
         print(f"precision_invalid: {self.precision_invalid} \n")
+        print(f"precision_valid: {self.precision_valid}")
+        print(f"precision_land: {self.precision_land}")
 
-        print(f"recall_invalid_land: {self.sensitivity_recall_land}")
-        print(f"recall_invalid_land: {self.sensitivity_recall_valid}")
-        print(f"recall_invalid_land: {self.sensitivity_recall_invalid} \n")
+        print(f"recall_invalid: {self.sensitivity_recall_invalid} \n")
+        print(f"recall_valid: {self.sensitivity_recall_valid}")
+        print(f"recall_land: {self.sensitivity_recall_land}")
 
-        print(f"specificy_invalid_land: {self.specificy_land}")
-        print(f"specificy_invalid_valid: {self.specificy_valid}")
-        print(f"specificy_invalid_invalid: {self.specificy_invalid} \n")
+        print(f"specificy_invalid: {self.specificy_invalid} \n")
+        print(f"specificy_valid: {self.specificy_valid}")
+        print(f"specificy_land: {self.specificy_land}")
 
-        print(f"f1_land: {self.f1_land}")
-        print(f"f1_invalid: {self.f1_invalid}")
         print(f"f1_valid: {self.f1_valid}")
+        print(f"f1_invalid: {self.f1_invalid}")
+        print(f"f1_land: {self.f1_land}")

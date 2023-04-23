@@ -51,18 +51,17 @@ class ChunkJaccardMatrix:
         return self
 
     def __next__(self):
-        if self.current_chunk_index >= self.num_chunks:
+        if self.current_chunk_index > self.num_chunks:
             raise StopIteration
 
         start = self.current_chunk_index * self.chunk_size
         end = start + self.chunk_size
         if self.current_chunk_index == self.num_chunks:
-            end = self.tiles
-        print(f'Chunk {self.current_chunk_index} [{start}:{end}]')
-
+            end = self.y_true.shape[0]
+        print(f'batch {self.current_chunk_index} {datetime.now()} start: {start} end: {end}')
         pred_chunk = np.argmax(self.y_pred[start:end], axis=-1)
-        pred_chunk = to_categorical(pred_chunk, num_classes=3)
 
+        pred_chunk = to_categorical(pred_chunk, num_classes=3)
 
         y_true_chunk = np.copy(self.y_true[start:end])
         y_true_chunk = to_categorical(y_true_chunk, num_classes=3)

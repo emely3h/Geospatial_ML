@@ -6,6 +6,8 @@ from tensorflow.keras.callbacks import EarlyStopping
 import pickle
 import numpy as np
 from typing import Tuple
+import os
+from tensorflow.keras.models import load_model
 
 
 def normalizing_encoding(
@@ -124,3 +126,40 @@ def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx
     return (intersection + 1.0) / (
         keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection + 1.0
     )
+
+
+def predictions_in_chunks(model, generator, num_run, dataset, num_tiles, batch_size, experiment):
+    num_batches = generator.__len__()
+    pred_mmap = np.memmap(f'../models/{experiment}/predictions/pred_{dataset}_{num_run}.npy', mode="w+",
+                          shape=(num_tiles, 256, 256, 3), dtype=np.float32)
+
+    for batch_idx in range(num_batches):
+        batch_x, _ = generator.__getitem__(batch_idx)
+        batch_preds = model.predict(batch_x)
+        print(f'batch {batch_idx} batch_x shape: {batch_x} batch_pred shape: {batch_preds}')
+        start = batch_idx * batch_size
+        end = start + batch_size
+        pred_mmap[start:end] = batch_preds
+
+
+def get_filenames(experiment):
+    files = os.listdir(f'../models/{experiment}/')
+    return [f for f in files if f.startswith('model_')]
+
+
+def predictions_for_models(train_generator, val_generator, test_generator, experiment, test_val_tiles, train_tiles, batch_size, model_range=None):
+    saved_models = get_filenames(experiment)
+    if model_range is None:
+        model_range = len(saved_models)
+    print(f'All found models: {saved_models}')
+
+    for idx in range(model_range):
+        print(f'Make predictions with model {saved_models[idx]}')
+        model = load_model(f'../models/{experiment}/{saved_models[idx]}')
+        num_run = saved_models[idx].split('_')[-1][0]
+        print('Start predictions with test data...')
+        predictions_in_chunks(model, test_generator, num_run, 'test', test_val_tiles, batch_size, experiment)
+        print('Start predictions with validation data...')
+        predictions_in_chunks(model, val_generator, num_run, 'val', test_val_tiles, experiment)
+        print('Start predictions with training data...\n')
+        predictions_in_chunks(model, train_generator, num_run, 'train', train_tiles, experiment)

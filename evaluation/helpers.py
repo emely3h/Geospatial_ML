@@ -1,6 +1,8 @@
 import numpy as np
 from tensorflow import keras
 import pickle
+import matplotlib.pyplot as plt
+
 
 class ConfusionMatrix:
     __slots__ = [
@@ -21,6 +23,7 @@ class ConfusionMatrix:
         self.false_positives += conf_matrix.false_positives
         self.true_negatives += conf_matrix.true_negatives
         self.false_negatives += conf_matrix.false_negatives
+
 
 def get_confusion_matrix(y_true, y_pred, label):
     # revert one hot encoding => binary tensor [0, 0, 1] back to label [2] (3D array to 2D array)
@@ -51,12 +54,12 @@ def get_intersections_unions(y_true: np.ndarray, y_pred: np.ndarray):
     for label in range(3):
         y_true_f = keras.backend.flatten(y_true[..., label])
         y_pred_f = keras.backend.flatten(y_pred[..., label])
-
         intersection = keras.backend.sum(y_true_f * y_pred_f)
         union = (keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection)
 
         intersections.append(intersection)
         unions.append(union)
+
     return intersections, unions
 
 
@@ -67,5 +70,31 @@ def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
         pickle.dump(metrics_val, file)
     with open(f"{saving_path}/metrics_train_{count}.pkl", "wb") as file:
         pickle.dump(metrics_test, file)
+
+
+def plot_loss_acc(plots, y_scale, model_history, scale):
+    loss = model_history['loss']
+    val_loss = model_history['val_loss']
+    acc = model_history['accuracy']
+    val_acc = model_history['val_accuracy']
+
+    plt.figure(figsize=(10, 6))
+    if 'loss' in plots:
+        plt.plot(loss, 'g', label='Training Loss')
+
+    if 'accuracy' in plots:
+        plt.plot(acc, 'y', label='Training Accuracy')
+
+    if 'val_loss' in plots:
+        plt.plot(val_loss, 'r', label='Validation Loss')
+
+    if 'val_accuracy' in plots:
+        plt.plot(val_acc, 'b', label='Validation Accuracy')
+
+    plt.xlabel('Epoch')
+    plt.ylabel('Value')
+    plt.ylim(scale)
+    plt.legend()
+    plt.show()
 
 
