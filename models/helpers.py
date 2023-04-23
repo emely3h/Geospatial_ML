@@ -8,6 +8,7 @@ import numpy as np
 from typing import Tuple
 import os
 from tensorflow.keras.models import load_model
+from datetime import datetime
 
 
 def normalizing_encoding(
@@ -148,6 +149,7 @@ def get_filenames(experiment):
 
 
 def predictions_for_models(train_generator, val_generator, test_generator, experiment, test_val_tiles, train_tiles, batch_size, model_range=None):
+    print(f'start: {datetime.now()}')
     saved_models = get_filenames(experiment)
     if model_range is None:
         model_range = (0, len(saved_models))
@@ -163,3 +165,4 @@ def predictions_for_models(train_generator, val_generator, test_generator, exper
         predictions_in_chunks(model, val_generator, num_run, 'val', test_val_tiles, batch_size, experiment)
         print('Start predictions with training data...\n')
         predictions_in_chunks(model, train_generator, num_run, 'train', train_tiles, batch_size, experiment)
+    print(f'end: {datetime.now()}')
