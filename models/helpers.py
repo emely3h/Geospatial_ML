@@ -160,6 +160,6 @@ def predictions_for_models(train_generator, val_generator, test_generator, exper
         print('Start predictions with test data...')
         predictions_in_chunks(model, test_generator, num_run, 'test', test_val_tiles, batch_size, experiment)
         print('Start predictions with validation data...')
-        predictions_in_chunks(model, val_generator, num_run, 'val', test_val_tiles, experiment)
+        predictions_in_chunks(model, val_generator, num_run, 'val', test_val_tiles, batch_size, experiment)
         print('Start predictions with training data...\n')
-        predictions_in_chunks(model, train_generator, num_run, 'train', train_tiles, experiment)
+        predictions_in_chunks(model, train_generator, num_run, 'train', train_tiles, batch_size, experiment)
