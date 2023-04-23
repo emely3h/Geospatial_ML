@@ -1,5 +1,5 @@
 import numpy as np
-from chunk_jaccard_matrix import ChunkJaccardMatrix
+from evaluation_metrics.chunk_jaccard_matrix import ChunkJaccardMatrix
 
 class EvaluationMetricsTotal:
     """
