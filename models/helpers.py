@@ -136,7 +136,7 @@ def predictions_in_chunks(model, generator, num_run, dataset, num_tiles, batch_s
     for batch_idx in range(num_batches):
         batch_x, _ = generator.__getitem__(batch_idx)
         batch_preds = model.predict(batch_x)
-        print(f'batch no: {batch_idx}, batch_x shape: {batch_x.shape}, batch_pred shape: {batch_preds.shape}')
+        #print(f'batch no: {batch_idx}, batch_x shape: {batch_x.shape}, batch_pred shape: {batch_preds.shape}')
         start = batch_idx * batch_size
         end = start + batch_size
         pred_mmap[start:end] = batch_preds
