@@ -148,7 +148,7 @@ def get_filenames(experiment):
     return [f for f in files if f.startswith('model_')]
 
 
-def predictions_for_models(train_generator, val_generator, test_generator, experiment, test_val_tiles, train_tiles, batch_size, model_range=None):
+def predictions_for_models(train_generator, val_generator, test_generator, experiment, train_tiles, val_tiles, test_tiles, batch_size, model_range=None):
     print(f'start: {datetime.now()}')
     saved_models = get_filenames(experiment)
     if model_range is None:
@@ -160,9 +160,9 @@ def predictions_for_models(train_generator, val_generator, test_generator, exper
         model = load_model(f'../models/{experiment}/{saved_models[idx]}')
         num_run = saved_models[idx].split('_')[-1][0]
         print('Start predictions with test data...')
-        predictions_in_chunks(model, test_generator, num_run, 'test', test_val_tiles, batch_size, experiment)
+        predictions_in_chunks(model, test_generator, num_run, 'test', test_tiles, batch_size, experiment)
         print('Start predictions with validation data...')
-        predictions_in_chunks(model, val_generator, num_run, 'val', test_val_tiles, batch_size, experiment)
+        predictions_in_chunks(model, val_generator, num_run, 'val', val_tiles, batch_size, experiment)
         print('Start predictions with training data...\n')
         predictions_in_chunks(model, train_generator, num_run, 'train', train_tiles, batch_size, experiment)
     print(f'end: {datetime.now()}')
