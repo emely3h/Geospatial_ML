@@ -3,6 +3,8 @@ from tensorflow import keras
 import pickle
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
+import os
+import pandas as pd
 
 
 class ConfusionMatrix:
@@ -128,3 +130,54 @@ def display(list_train, list_mask, list_pred):
         sample_image, sample_mask, sample_pred = list_train[idx], list_mask[idx], list_pred[idx]
         sample_image = sample_image[..., :4]
         display_image([sample_image, sample_mask, sample_pred])
+
+
+def _load_metrics(path):
+    metrics = []
+    for file in os.listdir(path):
+        with open(os.path.join(path, file), "rb") as f:
+            print(f'load {file}')
+            metrics.append((pickle.load(f), file))
+
+    return metrics
+
+
+# classes using slots don't have a __dict__ method by default
+def _metric_to_dict(metric):
+    return {
+        "mean_jaccard": float(metric.mean_jaccard),
+        "jaccard_invalid": float(metric.jaccard_invalid),
+        "jaccard_valid": float(metric.jaccard_valid),
+        "jaccard_land": float(metric.jaccard_land),
+
+        "f1_invalid": metric.f1_invalid,
+        "f1_valid": metric.f1_valid,
+        "f1_land": metric.f1_land,
+
+        "precision_invalid": metric.precision_invalid,
+        "precision_valid": metric.precision_valid,
+        "precision_land": metric.precision_land,
+
+        "sensitivity_invalid": metric.sensitivity_recall_invalid,
+        "sensitivity_valid": metric.sensitivity_recall_valid,
+        "sensitivity_land": metric.sensitivity_recall_land,
+
+        "specificy_invalid": metric.specificy_invalid,
+        "specificy_valid": metric.specificy_valid,
+        "specificy_land": metric.specificy_land,
+    }
+
+
+def load_metrics_into_df(experiment):
+    metrics = _load_metrics(f'../metrics/{experiment}')
+    metrics_dicts = []
+    metrics_titles = []
+
+    for metric in metrics:
+        metrics_dicts.append(_metric_to_dict(metric[0]))
+        name_split = metric[1].split('_')
+        metrics_titles.append(f'{name_split[1]}_{name_split[2][0]}')
+
+    df = pd.DataFrame(metrics_dicts).transpose()
+    df.columns = metrics_titles
+    return df
