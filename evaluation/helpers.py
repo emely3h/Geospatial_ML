@@ -66,11 +66,11 @@ def get_intersections_unions(y_true: np.ndarray, y_pred: np.ndarray):
 
 def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
     with open(f"{saving_path}/metrics_test_{count}.pkl", "wb") as file:
-        pickle.dump(metrics_train, file)
+        pickle.dump(metrics_test, file)
     with open(f"{saving_path}/metrics_val_{count}.pkl", "wb") as file:
         pickle.dump(metrics_val, file)
     with open(f"{saving_path}/metrics_train_{count}.pkl", "wb") as file:
-        pickle.dump(metrics_test, file)
+        pickle.dump(metrics_train, file)
 
 
 def plot_loss_acc(plots, y_scale, model_history, scale):
