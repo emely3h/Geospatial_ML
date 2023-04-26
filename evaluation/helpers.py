@@ -166,10 +166,13 @@ def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
     metrics_test = _metric_to_dict(metrics_test)
 
     with open(f"{saving_path}/metrics_test_{count}.pkl", "wb") as file:
+        print('save test dict')
         pickle.dump(metrics_test, file)
     with open(f"{saving_path}/metrics_val_{count}.pkl", "wb") as file:
+        print('save val dict')
         pickle.dump(metrics_val, file)
     with open(f"{saving_path}/metrics_train_{count}.pkl", "wb") as file:
+        print('save train dict')
         pickle.dump(metrics_train, file)
 
 
