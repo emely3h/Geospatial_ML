@@ -133,6 +133,6 @@ def load_metrics_into_df(experiment):
         name_split = metric[1].split('_')
         metrics_titles.append(f'{name_split[1]}_{name_split[2][0]}')
 
-    df = pd.DataFrame(metrics_dicts).transpose()
-    df.columns = metrics_titles
+    df = pd.DataFrame(metrics_dicts)
+    df.index = metrics_titles
     return df
