@@ -1,10 +1,11 @@
-import numpy as np
-from tensorflow import keras
-import pickle
-import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
 import os
+import pickle
+
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+from matplotlib.colors import ListedColormap
+from tensorflow import keras
 
 
 class ConfusionMatrix:
@@ -64,15 +65,6 @@ def get_intersections_unions(y_true: np.ndarray, y_pred: np.ndarray):
         unions.append(union)
 
     return intersections, unions
-
-
-def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
-    with open(f"{saving_path}/metrics_test_{count}.pkl", "wb") as file:
-        pickle.dump(metrics_test, file)
-    with open(f"{saving_path}/metrics_val_{count}.pkl", "wb") as file:
-        pickle.dump(metrics_val, file)
-    with open(f"{saving_path}/metrics_train_{count}.pkl", "wb") as file:
-        pickle.dump(metrics_train, file)
 
 
 def plot_loss_acc(plots, y_scale, model_history, scale):
@@ -166,6 +158,19 @@ def _metric_to_dict(metric):
         "specificy_valid": metric.specificy_valid,
         "specificy_land": metric.specificy_land,
     }
+
+
+def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
+    metrics_train = _metric_to_dict(metrics_train)
+    metrics_val = _metric_to_dict(metrics_val)
+    metrics_test = _metric_to_dict(metrics_test)
+
+    with open(f"{saving_path}/metrics_test_{count}.pkl", "wb") as file:
+        pickle.dump(metrics_test, file)
+    with open(f"{saving_path}/metrics_val_{count}.pkl", "wb") as file:
+        pickle.dump(metrics_val, file)
+    with open(f"{saving_path}/metrics_train_{count}.pkl", "wb") as file:
+        pickle.dump(metrics_train, file)
 
 
 def load_metrics_into_df(experiment):
