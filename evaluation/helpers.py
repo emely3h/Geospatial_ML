@@ -8,7 +8,7 @@ import pandas as pd
 from matplotlib.colors import ListedColormap
 from tensorflow import keras
 
-from evaluation_metrics_total import EvaluationMetricsTotal
+from evaluation.evaluation_metrics_total import EvaluationMetricsTotal
 
 
 class ConfusionMatrix:
