@@ -1,4 +1,5 @@
 import numpy as np
+
 from evaluation.chunk_jaccard_matrix import ChunkJaccardMatrix
 
 
@@ -135,3 +136,27 @@ class EvaluationMetricsTotal:
         print(f"f1_valid: {self.f1_valid}")
         print(f"f1_invalid: {self.f1_invalid}")
         print(f"f1_land: {self.f1_land}")
+
+    def to_dict(self):
+        return {
+            "mean_jaccard": float(self.mean_jaccard),
+            "jaccard_invalid": float(self.jaccard_invalid),
+            "jaccard_valid": float(self.jaccard_valid),
+            "jaccard_land": float(self.jaccard_land),
+
+            "f1_invalid": self.f1_invalid,
+            "f1_valid": self.f1_valid,
+            "f1_land": self.f1_land,
+
+            "precision_invalid": self.precision_invalid,
+            "precision_valid": self.precision_valid,
+            "precision_land": self.precision_land,
+
+            "sensitivity_invalid": self.sensitivity_recall_invalid,
+            "sensitivity_valid": self.sensitivity_recall_valid,
+            "sensitivity_land": self.sensitivity_recall_land,
+
+            "specificy_invalid": self.specificy_invalid,
+            "specificy_valid": self.specificy_valid,
+            "specificy_land": self.specificy_land,
+        }

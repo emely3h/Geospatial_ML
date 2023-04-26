@@ -1,11 +1,14 @@
 import os
 import pickle
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.colors import ListedColormap
 from tensorflow import keras
+
+from evaluation_metrics_total import EvaluationMetricsTotal
 
 
 class ConfusionMatrix:
@@ -98,7 +101,7 @@ def plot_loss_acc(plots, y_scale, model_history, scale):
     plt.show()
 
 
-def display_image(display_list):
+def _display_image(display_list):
     plt.figure(figsize=(15, 15))
 
     title = ['Input Image', 'True Mask', 'Predicted Mask']
@@ -121,7 +124,7 @@ def display(list_train, list_mask, list_pred):
     for idx, img_train in enumerate(list_train):
         sample_image, sample_mask, sample_pred = list_train[idx], list_mask[idx], list_pred[idx]
         sample_image = sample_image[..., :4]
-        display_image([sample_image, sample_mask, sample_pred])
+        _display_image([sample_image, sample_mask, sample_pred])
 
 
 def _load_metrics(path):
@@ -135,45 +138,49 @@ def _load_metrics(path):
 
 
 # classes using slots don't have a __dict__ method by default
-def _metric_to_dict(metric):
-    return {
-        "mean_jaccard": float(metric.mean_jaccard),
-        "jaccard_invalid": float(metric.jaccard_invalid),
-        "jaccard_valid": float(metric.jaccard_valid),
-        "jaccard_land": float(metric.jaccard_land),
-
-        "f1_invalid": metric.f1_invalid,
-        "f1_valid": metric.f1_valid,
-        "f1_land": metric.f1_land,
-
-        "precision_invalid": metric.precision_invalid,
-        "precision_valid": metric.precision_valid,
-        "precision_land": metric.precision_land,
-
-        "sensitivity_invalid": metric.sensitivity_recall_invalid,
-        "sensitivity_valid": metric.sensitivity_recall_valid,
-        "sensitivity_land": metric.sensitivity_recall_land,
-
-        "specificy_invalid": metric.specificy_invalid,
-        "specificy_valid": metric.specificy_valid,
-        "specificy_land": metric.specificy_land,
-    }
 
 
-def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
-    metrics_train = _metric_to_dict(metrics_train)
-    metrics_val = _metric_to_dict(metrics_val)
-    metrics_test = _metric_to_dict(metrics_test)
+def _save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
+    metrics_train = metrics_train.to_dict()
+    metrics_val = metrics_val.to_dict()
+    metrics_test = metrics_test.to_dict()
 
     with open(f"{saving_path}/metrics_test_{count}.pkl", "wb") as file:
-        print('save test dict')
+        print(f'save test dict {count}...')
         pickle.dump(metrics_test, file)
     with open(f"{saving_path}/metrics_val_{count}.pkl", "wb") as file:
-        print('save val dict')
+        print(f'save val dict {count}...')
         pickle.dump(metrics_val, file)
     with open(f"{saving_path}/metrics_train_{count}.pkl", "wb") as file:
-        print('save train dict')
+        print(f'save train dict {count}...')
         pickle.dump(metrics_train, file)
+
+
+def calculate_save_metrics(experiment, num_model, train_split_y, val_split_y, test_split_y, train_tiles, val_tiles,
+                           test_tiles, ):
+    pred_test_mmap = np.memmap(f'../models/experiment_3/predictions/pred_test_{num_model}.npy', mode="r",
+                               shape=(test_tiles, 256, 256, 3), dtype=np.float32)
+    pred_val_mmap = np.memmap(f'../models/experiment_3/predictions/pred_val_{num_model}.npy', mode="r",
+                              shape=(val_tiles, 256, 256, 3), dtype=np.float32)
+    pred_train_mmap = np.memmap(f'../models/experiment_3/predictions/pred_train_{num_model}.npy', mode="r",
+                                shape=(train_tiles, 256, 256, 3), dtype=np.float32)
+
+    print(f'start calculating test metrics: {datetime.now()}')
+    metrics_test = EvaluationMetricsTotal(test_split_y, pred_test_mmap)
+    print(f'start calculating validation metrics: {datetime.now()}')
+    metrics_val = EvaluationMetricsTotal(val_split_y, pred_val_mmap)
+    print(f'start calculating training metrics: {datetime.now()}')
+    metrics_train = EvaluationMetricsTotal(train_split_y, pred_train_mmap)
+    print(f'end: {datetime.now()}')
+
+    print('Test metrics')
+    metrics_test.print_metrics()
+    print('\nValidation metrics')
+    metrics_val.print_metrics()
+    print('\nTraining metrics')
+    metrics_train.print_metrics()
+
+    _save_metrics(metrics_train, metrics_val, metrics_test, f'../metrics/{experiment}', num_model)
 
 
 def load_metrics_into_df(experiment):
@@ -182,7 +189,7 @@ def load_metrics_into_df(experiment):
     metrics_titles = []
 
     for metric in metrics:
-        metrics_dicts.append(_metric_to_dict(metric[0]))
+        metrics_dicts.append(metric[0])
         name_split = metric[1].split('_')
         metrics_titles.append(f'{name_split[1]}_{name_split[2][0]}')
 
