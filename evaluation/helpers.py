@@ -97,7 +97,7 @@ def _save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
 
 
 def calculate_save_metrics(experiment, num_model, train_split_y, val_split_y, test_split_y, train_tiles, val_tiles,
-                           test_tiles, ):
+                           test_tiles):
     pred_test_mmap = np.memmap(f'../models/experiment_3/predictions/pred_test_{num_model}.npy', mode="r",
                                shape=(test_tiles, 256, 256, 3), dtype=np.float32)
     pred_val_mmap = np.memmap(f'../models/experiment_3/predictions/pred_val_{num_model}.npy', mode="r",
