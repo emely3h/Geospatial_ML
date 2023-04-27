@@ -67,16 +67,6 @@ def display(list_train, list_mask, list_pred):
         _display_image([sample_image, sample_mask, sample_pred])
 
 
-def _load_metrics(path):
-    metrics = []
-    for file in os.listdir(path):
-        with open(os.path.join(path, file), "rb") as f:
-            print(f'load {file}')
-            metrics.append((pickle.load(f), file))
-
-    return metrics
-
-
 # classes using slots don't have a __dict__ method by default
 
 
@@ -123,16 +113,26 @@ def calculate_save_metrics(experiment, num_model, train_split_y, val_split_y, te
     _save_metrics(metrics_train, metrics_val, metrics_test, f'../metrics/{experiment}', num_model)
 
 
+def _load_metrics(path):
+    metrics = []
+    for file in os.listdir(path):
+        with open(os.path.join(path, file), "rb") as f:
+            print(f'load {file}')
+            metrics.append((pickle.load(f), file))
+
+    return metrics
+
+
 def load_metrics_into_df(experiment):
     metrics = _load_metrics(f'../metrics/{experiment}')
     metrics_dicts = []
-    metrics_titles = []
+    metric_names = []
 
     for metric in metrics:
         metrics_dicts.append(metric[0])
         name_split = metric[1].split('_')
-        metrics_titles.append(f'{name_split[1]}_{name_split[2][0]}')
+        metric_names.append(f'{name_split[1]}_{name_split[2][0]}')
 
     df = pd.DataFrame(metrics_dicts)
-    df.index = metrics_titles
+    df.index = metric_names
     return df
