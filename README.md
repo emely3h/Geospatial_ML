@@ -32,9 +32,9 @@ $ poetry install
 
 ## Dataset
 
-Our dataset contains 15 large satellite images taken from the reservoir Lake Cahora Bassa in Mozambique at different
+Our dataset contains large satellite images taken from the reservoir Lake Cahora Bassa in Mozambique at 15 different
 times. The satellite images are RGB images with an additional alpha channel. In addition to the satellite images, the
-dataset includes a water-quality image (wq image) with one channel and a mask image with one channel.
+dataset includes a water-quality image (wq image) with one channel and a mask image with one channel for each timestamp.
 
 The water quality image and the mask image contain one channel valued between 0 and 255.
 
@@ -42,7 +42,7 @@ The water quality image and the mask image contain one channel valued between 0 
 - All pixels with value 0 are labeled as land.
 - The rest of the pixels are labeled as valid.
 
-Small excerpt from the dataset:
+### Small excerpt from the dataset:
 
 ![example_images](docs/example_images.png)
 
@@ -55,11 +55,31 @@ To train our machine learning model we combined the rgb images and the water qua
 with 5 channels. As the size of each image is too large to use it as input for the neural network we split each image
 into smaller tiles of size 256 x 256 once with an overlap of 56 pixels and once without overlapping.
 
-The following diagram gives an overview of the data preparation steps:
+### Overview of the data preparation steps:
 
 ![overview](docs/overview.png)
 
-## Project Structure
+### Data exploration
+
+Our dataset is imbalanced, meaning the number of pixels per label differ:
+
+- Mean percentage of invalid tiles: 23.48 %
+- Mean percentage of valid tiles: 31.89 %
+- Mean percentage of land tiles: 44.63 %
+
+For more details check out
+the [data exploration notebook](https://github.com/emely3h/Geospatial_ML/blob/main/data_exploration/data_exploration.ipynb)
+
+### Data cleaning
+
+As we did not have any inconsistencies or missing values in our dataset we only had to
+
+- remove irrelevant data (tiles that only contained land pixels were removed)
+- create mask (pixel values needed to be translated into labels)
+- normalize data (rgb channels needed to be normalized as unet works best with input values between 0 and 1)
+- one-hot-encoding
+
+## Folder Structure
 
 ### [prepare_data/](https://github.com/emely3h/Geospatial_ML/tree/main/prepare_data)
 
