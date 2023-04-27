@@ -1,10 +1,12 @@
-from prepare_folder import rename_folders, separate_unflagged_rgb, rename_files, unite_unflagged_flagged, delete_duplicate_data, extract_model_arrays, combine_npz_arrays
-from split_to_tiles import create_tiles
-from filter_tiles import filter_useful_tiles
 import os
-from save_as_array import save_data_x_y
+
 from dotenv import load_dotenv
-import numpy as np
+
+from filter_tiles import filter_useful_tiles
+from prepare_folder import rename_folders, separate_unflagged_rgb, rename_files, unite_unflagged_flagged, \
+    delete_duplicate_data, extract_model_arrays
+from save_as_array import save_data_x_y
+from split_to_tiles import create_tiles
 
 load_dotenv()
 
@@ -41,22 +43,22 @@ tile_size = 256
 step_size = 200
 
 # create folderstructure from emely_marcel_flagging.zip dataset
-#reformat_folders()
+reformat_folders()
 
 # split images into tiles, input one date folder splits rgb image and both wq images
-#create_tiles(date_folder, tile_size, step_size, 933120000)
+create_tiles(date_folder, tile_size, step_size, 933120000)
 
 # deletes tiles that contain only useless pixels
-#filter_useful_tiles(date_folder)
+filter_useful_tiles(date_folder)
 
 # saves final input data (X = input images and y = mask images) as 2 separate numpy arrays
-#save_data_x_y(date_folder, tile_size, step_size)
+save_data_x_y(date_folder, tile_size, step_size)
 
 # prepare all folders at once
-#prepare_all_data(f'{data_path}/data_rgb')
+prepare_all_data(f'{data_path}/data_rgb')
 
 # extract numpy arrays (x_train, y_mask) and copy them to a separate folder to prepare for google drive upload
-#extract_model_arrays(f'{data_path}/data_rgb')
+extract_model_arrays(f'{data_path}/data_rgb')
 
 # save all compressed numpy arrays in one file instead of one file per image
 # only works if extract_mode_arrays() has been executed before
