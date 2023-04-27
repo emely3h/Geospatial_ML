@@ -1,6 +1,6 @@
 # Geospatial ML
 
-## Overview
+## Project Intro
 
 Satellite images can be used to calculate water quality and depth. Most steps in this process are fully automated, but
 it is still essential that in the last step, a geographer reviews the calculated results and flags out certain parts of
