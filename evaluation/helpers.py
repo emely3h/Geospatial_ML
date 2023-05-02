@@ -117,12 +117,15 @@ def calc_save_metrics_data(y_mask, x_input, dataset):
     return _calculate_save_metrics(y_true, y_pred, dataset, saving_path)
 
 
-def _load_metrics(num_models, experiment):
+def _load_metrics(num_models, experiment, path_without_model=False):
     metrics = []
     path = f'../metrics/{experiment}'
     for model in range(0, num_models):
         for dataset in ['train', 'val', 'test']:
             file = f'metrics_{dataset}_{model}.pkl'
+            if path_without_model:
+                file = f'metrics_{dataset}.pkl'
+            print(f'opening file: {os.path.join(path, file)}')
             with open(os.path.join(path, file), "rb") as f:
                 m = pickle.load(f)
                 m_dict = m.__dict__
@@ -130,11 +133,13 @@ def _load_metrics(num_models, experiment):
                 del m_dict['cm_valid']
                 del m_dict['cm_land']
                 metrics.append((m_dict, file))
+                print('appended dict')
     return metrics
 
 
-def load_metrics_into_df(num_models, experiment, title):
-    metrics = _load_metrics(num_models, experiment)
+def load_metrics_into_df(num_models, experiment, title, path_without_model=False):
+    metrics = _load_metrics(num_models, experiment, path_without_model)
+    print('finish loading metrics')
     metrics_dicts = []
     metric_names = []
 
