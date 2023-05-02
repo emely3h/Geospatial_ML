@@ -4,6 +4,7 @@ import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from matplotlib.colors import ListedColormap
 from tensorflow.keras.utils import to_categorical
 
