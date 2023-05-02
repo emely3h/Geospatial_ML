@@ -1,13 +1,14 @@
 import os
 import pickle
-from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.colors import ListedColormap
+from tensorflow.keras.utils import to_categorical
 
-from evaluation.evaluation_metrics_total import EvaluationMetricsTotal
+from evaluation.evaluation_metrics import EvaluationMetrics, ConfusionMatrix
+from prepare_data.create_mask import create_physical_mask
 
 
 def plot_loss_acc(plots, y_scale, model_history, scale):
@@ -68,63 +69,71 @@ def display(list_train, list_mask, list_pred):
 
 
 # classes using slots don't have a __dict__ method by default
+def _calculate_save_metrics(y_true, y_pred, dataset, saving_path):
+    cm_labels = []
+    for label in range(0, 3):
+        print(f'Calculate {dataset} metrics for label {label}...')
+        m_fp = tf.keras.metrics.FalsePositives()
+        m_fp.update_state(y_true[..., label].flatten(), y_pred[..., label].flatten())
+        fp = m_fp.result().numpy()
 
+        m_fn = tf.keras.metrics.FalseNegatives()
+        m_fn.update_state(y_true[..., label].flatten(), y_pred[..., label].flatten())
+        fn = m_fn.result().numpy()
 
-def _save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
-    metrics_train = metrics_train.to_dict()
-    metrics_val = metrics_val.to_dict()
-    metrics_test = metrics_test.to_dict()
+        m_tp = tf.keras.metrics.TruePositives()
+        m_tp.update_state(y_true[..., label].flatten(), y_pred[..., label].flatten())
+        tp = m_tp.result().numpy()
 
-    with open(f"{saving_path}/metrics_test_{count}.pkl", "wb") as file:
-        print(f'save test dict {count}...')
-        pickle.dump(metrics_test, file)
-    with open(f"{saving_path}/metrics_val_{count}.pkl", "wb") as file:
-        print(f'save val dict {count}...')
-        pickle.dump(metrics_val, file)
-    with open(f"{saving_path}/metrics_train_{count}.pkl", "wb") as file:
-        print(f'save train dict {count}...')
-        pickle.dump(metrics_train, file)
+        m_tn = tf.keras.metrics.TrueNegatives()
+        m_tn.update_state(y_true[..., label].flatten(), y_pred[..., label].flatten())
+        tn = m_tn.result().numpy()
+        cm_labels.append(ConfusionMatrix(tn, fp, fn, tp))
+    metrics = EvaluationMetrics(cm_labels[0], cm_labels[1], cm_labels[2])
 
-
-def calculate_save_metrics(experiment, num_model, train_split_y, val_split_y, test_split_y, train_tiles, val_tiles,
-                           test_tiles):
-    pred_test_mmap = np.memmap(f'../models/{experiment}/predictions/pred_test_{num_model}.npy', mode="r",
-                               shape=(test_tiles, 256, 256, 3), dtype=np.float32)
-    pred_val_mmap = np.memmap(f'../models/{experiment}/predictions/pred_val_{num_model}.npy', mode="r",
-                              shape=(val_tiles, 256, 256, 3), dtype=np.float32)
-    pred_train_mmap = np.memmap(f'../models/{experiment}/predictions/pred_train_{num_model}.npy', mode="r",
-                                shape=(train_tiles, 256, 256, 3), dtype=np.float32)
-
-    print(f'start calculating test metrics: {datetime.now()}')
-    metrics_test = EvaluationMetricsTotal(test_split_y, pred_test_mmap)
-    print(f'start calculating validation metrics: {datetime.now()}')
-    metrics_val = EvaluationMetricsTotal(val_split_y, pred_val_mmap)
-    print(f'start calculating training metrics: {datetime.now()}')
-    metrics_train = EvaluationMetricsTotal(train_split_y, pred_train_mmap)
-    print(f'end: {datetime.now()}')
-
-    print('Test metrics')
-    metrics_test.print_metrics()
-    print('\nValidation metrics')
-    metrics_val.print_metrics()
-    print('\nTraining metrics')
-    metrics_train.print_metrics()
-
-    _save_metrics(metrics_train, metrics_val, metrics_test, f'../metrics/{experiment}', num_model)
-
-
-def _load_metrics(path):
-    metrics = []
-    for file in os.listdir(path):
-        with open(os.path.join(path, file), "rb") as f:
-            print(f'load {file}')
-            metrics.append((pickle.load(f), file))
-
+    with open(saving_path, "wb") as file:
+        print(f'saving metrics...\n')
+        pickle.dump(metrics, file)
     return metrics
 
 
-def load_metrics_into_df(experiment):
-    metrics = _load_metrics(f'../metrics/{experiment}')
+def calc_save_metrics_pred(dataset: str, num_tiles: int, experiment: str, y_true: np.memmap, model: int = None):
+    y_pred = np.memmap(f"../models/{experiment}/predictions/pred_{dataset}_{model}.npy", mode="r",
+                       shape=(num_tiles, 256, 256, 3), dtype=np.float32)
+    y_pred = np.argmax(y_pred, axis=-1)
+
+    y_pred = to_categorical(y_pred, num_classes=3, dtype="uint8")
+    y_true = to_categorical(y_true, num_classes=3, dtype="uint8")
+    saving_path = f"../metrics/{experiment}/metrics_{dataset}_{model}.pkl"
+    return _calculate_save_metrics(y_true, y_pred, dataset, saving_path)
+
+
+def calc_save_metrics_data(y_mask, x_input, dataset):
+    y_true = to_categorical(y_mask, num_classes=3)
+    x_input = np.copy(x_input)
+    y_pred = create_physical_mask(x_input)
+    saving_path = f"../metrics/data_exploration/metrics_{dataset}.pkl"
+    return _calculate_save_metrics(y_true, y_pred, dataset, saving_path)
+
+
+def _load_metrics(num_models, experiment):
+    metrics = []
+    path = f'../metrics/{experiment}'
+    for model in range(0, num_models):
+        for dataset in ['train', 'val', 'test']:
+            file = f'metrics_{dataset}_{model}.pkl'
+            with open(os.path.join(path, file), "rb") as f:
+                m = pickle.load(f)
+                m_dict = m.__dict__
+                del m_dict['cm_invalid']
+                del m_dict['cm_valid']
+                del m_dict['cm_land']
+                metrics.append((m_dict, file))
+    return metrics
+
+
+def load_metrics_into_df(num_models, experiment, title):
+    metrics = _load_metrics(num_models, experiment)
     metrics_dicts = []
     metric_names = []
 
@@ -135,4 +144,16 @@ def load_metrics_into_df(experiment):
 
     df = pd.DataFrame(metrics_dicts)
     df.index = metric_names
+    df = df.transpose()
+
+    df = df.style.set_table_attributes("style='display:inline'").set_caption(
+        title).set_table_styles([{
+        'selector': 'caption',
+        'props': [
+            ('color', 'white'),
+            ('font-size', '20px')
+        ]
+    }])
+    df.index.name = 'Evaluation Metrics'
+
     return df
