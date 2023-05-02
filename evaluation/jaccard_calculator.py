@@ -73,8 +73,9 @@ class JaccardIndexCalculator:
         if end_index > self.tiles:
             end_index = self.tiles
         chunk_size = end_index - start_index
-        x_input = np.zeros((chunk_size, 256, 256, 5), dtype=np.float32)
+        x_input = np.zeros((chunk_size, 256, 256, 5), dtype=np.float32) #todo in this case chunksize shour be end idx - start idx
         np.copyto(x_input, self.split_x[start_index:end_index])
+        # todo: x_input = np.copyto(self.split_x[start_index:end_index])
         y_mask = np.zeros((chunk_size, 256, 256), dtype=np.float32)
         np.copyto(y_mask, self.split_y[start_index:end_index])
         return x_input, y_mask
