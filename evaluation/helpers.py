@@ -70,7 +70,7 @@ def display(list_train, list_mask, list_pred):
 
 
 # classes using slots don't have a __dict__ method by default
-def _calculate_save_metrics(y_true, y_pred, dataset, saving_path):
+def _calculate_save_metrics(y_true: np.array, y_pred: np.array, dataset: str, saving_path: str) -> EvaluationMetrics:
     cm_labels = []
     for label in range(0, 3):
         print(f'Calculate {dataset} metrics for label {label}...')
@@ -98,7 +98,8 @@ def _calculate_save_metrics(y_true, y_pred, dataset, saving_path):
     return metrics
 
 
-def calc_save_metrics_pred(dataset: str, num_tiles: int, experiment: str, y_true: np.memmap, model: int = None):
+def calc_save_metrics_pred(dataset: str, num_tiles: int, experiment: str, y_true: np.memmap,
+                           model: int = None) -> EvaluationMetrics:
     y_pred = np.memmap(f"../models/{experiment}/predictions/pred_{dataset}_{model}.npy", mode="r",
                        shape=(num_tiles, 256, 256, 3), dtype=np.float32)
     y_pred = np.argmax(y_pred, axis=-1)
@@ -109,22 +110,22 @@ def calc_save_metrics_pred(dataset: str, num_tiles: int, experiment: str, y_true
     return _calculate_save_metrics(y_true, y_pred, dataset, saving_path)
 
 
-def calc_save_metrics_data(y_mask, x_input, dataset):
+def calc_save_metrics_data(y_mask, x_input, dataset, overlap):
     y_true = to_categorical(y_mask, num_classes=3)
     x_input = np.copy(x_input)
     y_pred = create_physical_mask(x_input)
-    saving_path = f"../metrics/data_exploration/metrics_{dataset}.pkl"
+    saving_path = f"../metrics/data_exploration/metrics_{dataset}_{overlap}.pkl"
     return _calculate_save_metrics(y_true, y_pred, dataset, saving_path)
 
 
-def _load_metrics(num_models, experiment, path_without_model=False):
+def _load_metrics(num_models, experiment, ending: str = None):
     metrics = []
     path = f'../metrics/{experiment}'
     for model in range(0, num_models):
         for dataset in ['train', 'val', 'test']:
             file = f'metrics_{dataset}_{model}.pkl'
-            if path_without_model:
-                file = f'metrics_{dataset}.pkl'
+            if ending:
+                file = f'metrics_{dataset}_{ending}.pkl'
             print(f'opening file: {os.path.join(path, file)}')
             with open(os.path.join(path, file), "rb") as f:
                 m = pickle.load(f)
@@ -133,16 +134,13 @@ def _load_metrics(num_models, experiment, path_without_model=False):
                 del m_dict['cm_valid']
                 del m_dict['cm_land']
                 metrics.append((m_dict, file))
-                print('appended dict')
     return metrics
 
 
-def load_metrics_into_df(num_models, experiment, title, path_without_model=False):
-    metrics = _load_metrics(num_models, experiment, path_without_model)
-    print('finish loading metrics')
+def load_metrics_into_df(num_models, experiment, title, ending=None):
+    metrics = _load_metrics(num_models, experiment, ending)
     metrics_dicts = []
     metric_names = []
-
     for metric in metrics:
         metrics_dicts.append(metric[0])
         name_split = metric[1].split('_')
