@@ -150,7 +150,7 @@ def load_metrics_into_df(num_models, experiment, title, ending=None):
     df.index = metric_names
     df = df.transpose()
 
-    df = df.style.set_table_attributes("style='display:inline'").set_caption(
+    df.style.set_table_attributes("style='display:inline'").set_caption(
         title).set_table_styles([{
         'selector': 'caption',
         'props': [
