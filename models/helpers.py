@@ -1,15 +1,20 @@
-from models.unet_model import unet_2d
-from tensorflow import keras
-from keras.losses import categorical_crossentropy
-from tensorflow.keras.utils import to_categorical
-from tensorflow.keras.callbacks import EarlyStopping
+import os
 import pickle
-import numpy as np
+from datetime import datetime
 from typing import Tuple
+
+import numpy as np
+from keras.losses import categorical_crossentropy
+from tensorflow import keras
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import load_model
+from tensorflow.keras.utils import to_categorical
+
+from models.unet_model import unet_2d
 
 
 def normalizing_encoding(
-    encoded_x: np.ndarray, unencoded_y: np.ndarray
+        encoded_x: np.ndarray, unencoded_y: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray]:
     print("unencoded_y shape: ", unencoded_y.shape)
     print("\nEncoding data...")
@@ -23,11 +28,11 @@ def normalizing_encoding(
 
 
 def define_model(
-    input_shape=(256, 256, 5),
-    num_classes=3,
-    optimizer="adam",
-    loss=categorical_crossentropy,
-    metrics=["accuracy"],
+        input_shape=(256, 256, 5),
+        num_classes=3,
+        optimizer="adam",
+        loss=categorical_crossentropy,
+        metrics=["accuracy"],
 ):
     model = unet_2d(input_shape=input_shape, num_classes=num_classes)
     model.compile(optimizer=optimizer, loss=loss, metrics=metrics)
@@ -91,7 +96,7 @@ def get_mean_jaccard(all_metrics):
 
 
 def initialize_saved_data(
-    split_x: np.ndarray, split_y: np.ndarray, tiles: int
+        split_x: np.ndarray, split_y: np.ndarray, tiles: int
 ) -> Tuple[np.ndarray, np.ndarray]:
     print("Initializing saved data...")
     x_input = np.zeros((tiles, 256, 256, 5), dtype=np.float32)
@@ -122,5 +127,46 @@ def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx
 
     intersection = keras.backend.sum(y_true_f * y_pred_f)
     return (intersection + 1.0) / (
-        keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection + 1.0
+            keras.backend.sum(y_true_f) + keras.backend.sum(y_pred_f) - intersection + 1.0
     )
+
+
+def predictions_in_chunks(model, generator, num_run, dataset, num_tiles, batch_size, experiment):
+    num_batches = generator.__len__()
+    pred_mmap = np.memmap(f'../models/{experiment}/predictions/pred_{dataset}_{num_run}.npy', mode="w+",
+                          shape=(num_tiles, 256, 256, 3), dtype=np.float32)
+
+    for batch_idx in range(num_batches):
+        batch_x, _ = generator.__getitem__(batch_idx)
+        batch_preds = model.predict(batch_x)
+        start = batch_idx * batch_size
+        end = start + batch_size
+        pred_mmap[start:end] = batch_preds
+        print(f'batch no: {batch_idx}, batch_x shape: {batch_x.shape}, batch_pred shape: {batch_preds.shape} '
+              f'mmap_start: {start} mmap_end: {end}')
+
+
+def get_filenames(experiment):
+    files = os.listdir(f'../models/{experiment}/')
+    return [f for f in files if f.startswith('model_')]
+
+
+def predictions_for_models(train_generator, val_generator, test_generator, experiment, train_tiles, val_tiles,
+                           test_tiles, batch_size, model_range=None):
+    print(f'start: {datetime.now()}')
+    saved_models = get_filenames(experiment)
+    if model_range is None:
+        model_range = (0, len(saved_models))
+    print(f'All found models: {saved_models}')
+
+    for idx in range(model_range[0], model_range[1]):
+        print(f'Make predictions with model {saved_models[idx]}')
+        model = load_model(f'../models/{experiment}/{saved_models[idx]}')
+        num_run = saved_models[idx].split('_')[-1][0]
+        print('Start predictions with test data...')
+        predictions_in_chunks(model, test_generator, num_run, 'test', test_tiles, batch_size, experiment)
+        print('Start predictions with validation data...')
+        predictions_in_chunks(model, val_generator, num_run, 'val', val_tiles, batch_size, experiment)
+        print('Start predictions with training data...\n')
+        predictions_in_chunks(model, train_generator, num_run, 'train', train_tiles, batch_size, experiment)
+    print(f'end: {datetime.now()}')

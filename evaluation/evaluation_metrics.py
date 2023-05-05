@@ -1,6 +1,5 @@
 import numpy as np
 from tensorflow import keras
-import pickle
 
 
 class EvaluationMetrics:
@@ -64,7 +63,7 @@ class EvaluationMetrics:
             + keras.backend.sum(y_pred_f)
             - intersection
             + 1.0
-        )  # todo reason for +1?
+        )  # todo: how can this work without reverting one-hot encoding when each pixel has a probability distribution across the 3 classes?
 
     def jaccard_rounding_issue(self, y_true, y_pred):
         # revert one hot encoding => binary tensor [0, 0, 1] back to label [2] (3D array to 2D array)
@@ -184,49 +183,3 @@ class EvaluationMetrics:
         print(f"f1_land: {self.f1_land}")
         print(f"f1_invalid: {self.f1_invalid}")
         print(f"f1_valid: {self.f1_valid}")
-
-    # todo add pixel accuracy
-
-
-def save_metrics(metrics_train, metrics_val, metrics_test, saving_path, count):
-    with open(f"{saving_path}/metrics_test_{count}.pkl", "wb") as file:
-        pickle.dump(metrics_train, file)
-    with open(f"{saving_path}/metrics_val_{count}.pkl", "wb") as file:
-        pickle.dump(metrics_val, file)
-    with open(f"{saving_path}/metrics_train_{count}.pkl", "wb") as file:
-        pickle.dump(metrics_test, file)
-
-
-if __name__ == "__main__":
-    import time
-
-    start_time = time.time()
-    # create sample arrays
-    y_true = np.array([[0, 1, 0], [1, 0, 0], [0, 0, 1]], dtype=np.float32)
-    y_pred = np.array([[0, 1, 0], [0, 1, 0], [0, 0, 1]], dtype=np.float32)
-    y_physical = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=np.float32)
-
-    # create instance of EvaluationMetrics
-    metrics = EvaluationMetrics(y_true, y_pred, y_physical)
-
-    # print results
-    print(f"Jaccard Coefficient: {metrics.jaccard}")
-    print(f"Jaccard Coefficient (physical): {metrics.jaccard_physical}")
-    print(f"Confusion Matrix (land): {metrics.conf_matrix_land}")
-    print(f"Confusion Matrix (valid): {metrics.conf_matrix_valid}")
-    print(f"Confusion Matrix (invalid): {metrics.conf_matrix_invalid}")
-    print(f"Precision (land): {metrics.precision_land}")
-    print(f"Sensitivity and Recall (land): {metrics.sensitivity_recall_land}")
-    print(f"Specificity (land): {metrics.specificy_land}")
-    print(f"Precision (valid): {metrics.precision_valid}")
-    print(f"Sensitivity and Recall (valid): {metrics.sensitivity_recall_valid}")
-    print(f"Specificity (valid): {metrics.specificy_valid}")
-    print(f"Precision (invalid): {metrics.precision_invalid}")
-    print(f"Sensitivity and Recall (invalid): {metrics.sensitivity_recall_invalid}")
-    print(f"Specificity (invalid): {metrics.specificy_invalid}")
-    print(f"F1 Score (land): {metrics.f1_land}")
-    print(f"F1 Score (valid): {metrics.f1_valid}")
-    print(f"F1 Score (invalid): {metrics.f1_invalid}")
-    end_time = time.time()
-    total_time = end_time - start_time
-    print(f"Total execution time: {total_time} seconds")
