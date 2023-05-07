@@ -12,12 +12,16 @@ from evaluation.evaluation_metrics import EvaluationMetrics, ConfusionMatrix
 from prepare_data.create_mask import create_physical_mask
 
 
-def plot_loss_acc(plots, y_scale, model_history, scale):
-    loss = model_history['loss']
+def plot_metrics(plots, model_history, scale):
     x = [i for i in range(len(model_history['loss']))]
-    val_loss = model_history['val_loss']
+
+    loss = model_history['loss']
     acc = model_history['accuracy']
+    iou = model_history['iou']
+
     val_acc = model_history['val_accuracy']
+    val_iou = model_history['val_iou']
+    val_loss = model_history['val_loss']
 
     plt.figure(figsize=(10, 6))
     if 'loss' in plots:
@@ -27,7 +31,9 @@ def plot_loss_acc(plots, y_scale, model_history, scale):
     if 'accuracy' in plots:
         print(f'Max training accuracy: {max(model_history["accuracy"])}')
         plt.scatter(x, acc, s=10, label='Training Accuracy')
-
+    if 'iou' in plots:
+        print(f'Max training iou: {max(model_history["iou"])}')
+        plt.scatter(x, acc, s=10, label='Training IoU')
     if 'val_loss' in plots:
         print(f'Min validation loss: {min(model_history["val_loss"])}')
         plt.scatter(x, val_loss, s=10, label='Validation Loss')
@@ -35,6 +41,10 @@ def plot_loss_acc(plots, y_scale, model_history, scale):
     if 'val_accuracy' in plots:
         print(f'Max validation accuracy: {max(model_history["val_accuracy"])}')
         plt.scatter(x, val_acc, s=10, label='Validation Accuracy')
+
+    if 'val_iou' in plots:
+        print(f'Max validation iou: {max(model_history["val_iou"])}')
+        plt.scatter(x, val_iou, s=10, label='Validation IoU')
 
     plt.xlabel('Epoch')
     plt.ylabel('Value')
@@ -69,7 +79,6 @@ def display(list_train, list_mask, list_pred):
         _display_image([sample_image, sample_mask, sample_pred])
 
 
-# classes using slots don't have a __dict__ method by default
 def _calculate_save_metrics(y_true: np.array, y_pred: np.array, dataset: str, saving_path: str) -> EvaluationMetrics:
     cm_labels = []
     for label in range(0, 3):
