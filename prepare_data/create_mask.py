@@ -1,6 +1,7 @@
-from PIL import Image
-import numpy as np
 import os
+
+import numpy as np
+from PIL import Image
 from tensorflow.keras.utils import to_categorical
 
 
@@ -33,4 +34,5 @@ def create_mask(root_folder, max_image_pixels):
 def create_physical_mask(x_input: np.ndarray) -> np.ndarray:
     wq_channel = x_input[:, :, :, 4]
     labeled = label_pixels(wq_channel)
+    print(f'shape after labeleling pixels: {labeled.shape} max: {np.max(labeled)} min: {np.min(labeled)}')
     return to_categorical(labeled, num_classes=3)
