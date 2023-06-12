@@ -142,8 +142,8 @@ def predictions_in_chunks(model, generator, num_run, dataset, num_tiles, batch_s
         start = batch_idx * batch_size
         end = start + batch_size
         pred_mmap[start:end] = batch_preds
-        print(f'batch no: {batch_idx}, batch_x shape: {batch_x.shape}, batch_pred shape: {batch_preds.shape} '
-              f'mmap_start: {start} mmap_end: {end}')
+        # print(f'batch no: {batch_idx}, batch_x shape: {batch_x.shape}, batch_pred shape: {batch_preds.shape} '
+        #      f'mmap_start: {start} mmap_end: {end}')
 
 
 def get_filenames(experiment):
