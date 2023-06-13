@@ -163,7 +163,8 @@ def predictions_for_models(train_generator, val_generator, test_generator, exper
     for idx in range(model_range[0], model_range[1]):
         print(f'Make predictions with model {saved_models[idx]}')
         model = load_model(f'../models/{experiment}/{saved_models[idx]}')
-        num_run = saved_models[idx].split('_')[-1][0]
+        num_run = saved_models[idx].split('_')[-1]
+        num_run = num_run.split('.')[0]
         print('Start predictions with test data...')
         predictions_in_chunks(model, test_generator, num_run, 'test', test_tiles, batch_size, experiment)
         print('Start predictions with validation data...')
