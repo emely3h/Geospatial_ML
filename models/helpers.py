@@ -133,6 +133,7 @@ def jaccard_coef(y_true: np.ndarray, y_pred: np.ndarray) -> keras.backend.floatx
 
 def predictions_in_chunks(model, generator, num_run, dataset, num_tiles, batch_size, experiment):
     num_batches = generator.__len__()
+    print(f'save pred in mmap: ../models/{experiment}/predictions/pred_{dataset}_{num_run}.npy')
     pred_mmap = np.memmap(f'../models/{experiment}/predictions/pred_{dataset}_{num_run}.npy', mode="w+",
                           shape=(num_tiles, 256, 256, 3), dtype=np.float32)
 
