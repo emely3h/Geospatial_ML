@@ -116,6 +116,69 @@ mask ([physics_jaccard](https://github.com/emely3h/Geospatial_ML/blob/main/data_
 This folder contains all helper methods and functions to calculate metrics for each trained folder which are saved on
 google drive.
 
+## Evaluation Metrics
+
+The model performance is evaluated with
+the [Intersection over Union](https://www.tensorflow.org/api_docs/python/tf/keras/metrics/IoU) (Jaccard Index) because
+the dataset is imbalanced which means that accuracy might be biased towards the larger class, whereas the
+Jaccard Index
+provides a more accurate measurement of similarity between
+predicted and actual labels. The Intersection over Union is calculated for each label separately. To evaluate the
+model performance the mean for all 3 labels is calculated. In addition to the Jaccard
+Index the F1 Score, Precision, Recall and
+specificity are also calculated and used to evaluate the model performance. to get an insight into the true positive
+rate, the ratio between true positives and false negatives and the
+true negative rate.
+
+## Summary of the experiments
+
+model chosen in the beginning random, based on original model
+missing numbers
+
+Experiment 1 explores the variance when training multiple models with the same configuration. To simplify the setup
+and get familiar with the libraries only a small subset of the entire dataset with overlapping tiles was used.
+Experiment 2 is similar to experiment 1 except for the dataset, as non-overlapping tiles were used.
+In experiment 3 the entire dataset was used for the training. As the RAM capacity was not sufficient DataGenerators
+were used so that the data was loaded in batches into RAM. Three models were trained with slightly different
+training configurations. The training of model 0 was stopped to early which led to underfitting while the training
+of model 1 was too long which led to overfitting. Model 2 was trained with an adjusted early stopping rate (10
+instead of 5 as in model 1), adjusted callback that monitors validation accuracy and loss and a checkpoint callback
+which saves the model after the best performing epoch.
+The aim of notebook 4 and 5 was to explore variance in the training. Therefore each for overlapping and
+non-overlapping tiles 5 models were trained with the optimized configuration of experiment 3. As the variance was
+lower and the mean intersection over union was slighltly better for the non-overlapping dataset all further
+experiment continue with the non-overlapping dataset.
+
+The goal of the following experiments is to get familiar with hyperparameters, to find the optimal combination of
+hyper parameters. I split the hyper parameters into three different categories:
+
+Training Configuration
+
+- Number of Epochs (experiment_3)
+- Callbacks (experiment_3)
+- Optimizer (experiment 7)
+- Learning rate (experiment 7)
+- Batch size
+
+Model Parameters
+
+- amount of conv2d layers (experiment 8)
+- activation functions
+
+Overfitting avoidance
+
+- dropout (experiment 9)
+
+My approach was to find a good training configuration first and then move on to optimize the unet architecture
+before experimenting with regularization methods.
+In experiment the early stopping callback was optimized to check the mean intersection over union and the loss
+instead of the accuracy.
+In experiment 7 different optimizers with different learning rates were tested. Given the resources AdamW performed
+best. At this point a good training configuration was found and I moved on to optimizing the unet architecture. In
+experiment 8 I tested different amounts of Conv2D layers with different amounts of filter sizes.
+
+## Final result
+
 ## Working with google colab
 
 _Only edit and push jupyter notebooks on google colab, edit and push .py scripts always locally!_
