@@ -132,21 +132,27 @@ true negative rate.
 
 ## Summary of the experiments
 
-I started with a u-net architecture very similar to
-the [original architecture](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/) except that I used one
-convolutional layer less to make the training faster in the beginning.
-Experiment 1 explores the variance when training multiple models with the same configuration. To simplify the setup
-and get familiar with the libraries only a small subset of the entire dataset with overlapping tiles was used.
-Experiment 2 is similar to experiment 1 except for the dataset, as non-overlapping tiles were used instead.
+As the unet architecture is very popular for semantic segmentation problem I started with a u-net architecture very
+similar to the [original architecture](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/) except that I used
+one convolutional layer less to make the training faster in the beginning.
 
-In experiment 3 the entire dataset was used for the training. As the RAM capacity was not sufficient DataGenerators
+[Experiment 1](https://github.com/emely3h/Geospatial_ML/blob/main/experiments/experiment_1.ipynb) explores the variance
+when training multiple models with the same configuration. To simplify the setup
+and get familiar with the libraries only a small subset of the entire dataset with overlapping tiles was used.
+[Experiment 2](https://github.com/emely3h/Geospatial_ML/blob/main/experiments/experiment_2.ipynb) is similar to
+experiment 1 except for the dataset, as non-overlapping tiles were used instead.
+
+In [experiment 3](https://github.com/emely3h/Geospatial_ML/blob/main/experiments/experiment_3.ipynb) the entire
+dataset was used for the training. As the RAM capacity was not sufficient DataGenerators
 were used so that the data was loaded in batches into RAM. Three models were trained with slightly different
 training configurations. The training of model 0 was stopped to early which led to underfitting while the training
 of model 1 was too long which led to overfitting. Model 2 was trained with an adjusted early stopping rate (10
 instead of 5 as in model 1), adjusted callback that monitors validation accuracy and loss and a checkpoint callback
 which saves the model after the best performing epoch. The best performing model can make predictions with a mean
-intersection over union of 0.935624.
-The aim of notebook 4 and 5 was to explore variance in the training. Therefore, 5 models each for overlapping and
+intersection over union of `0.935624.
+The aim of experiments [4](https://github.com/emely3h/Geospatial_ML/blob/main/experiments/experiment_4.ipynb) and
+[5](https://github.com/emely3h/Geospatial_ML/blob/main/experiments/experiment_5.ipynb)
+was to explore variance in the training. Therefore, 5 models each for overlapping and
 non-overlapping tiles were trained with the optimized configuration of experiment 3. As the variance was
 lower and the mean intersection over union was slightly better for the non-overlapping dataset all further
 experiments continue with the non-overlapping dataset.
@@ -173,18 +179,21 @@ Overfitting avoidance
 
 My approach was to find a good training configuration first and then move on to optimize the unet architecture
 before experimenting with regularization methods.
-In experiment 6 the early stopping callback was optimized to check the mean intersection over union and the loss
+In [experiment 6](https://github.com/emely3h/Geospatial_ML/blob/main/experiments/experiment_6.ipynb) the early
+stopping callback was optimized to check the mean intersection over union and the loss
 instead of the accuracy.
-In experiment 7 different optimizers with different learning rates were tested. Given the resources AdamW performed
-best. The best model could perform with a jaccard index of 0.951696. At this point a good training configuration was
+In [experiment 7](https://github.com/emely3h/Geospatial_ML/blob/main/experiments/experiment_7.ipynb) different
+optimizers with different learning rates were tested. Given the resources AdamW performed
+best. The best model could perform with a jaccard index of `0.951696`. At this point a good training configuration was
 found and I moved on to optimizing the unet architecture.
-In experiment 8 I tested different amounts of Conv2D layers with different amounts of filter sizes. Only the
+In [experiment 8](https://github.com/emely3h/Geospatial_ML/blob/main/experiments/experiment_8.ipynb) I tested
+different amounts of Conv2D layers with different amounts of filter sizes. Only the
 architecture with one convolutional layer less than the original performed better than the one I started with. The
-intersection over union could be improved to 0.95598.
+intersection over union could be improved to `0.95598.
 
 ## Final result
 
-The first unet trained on the entire dataset performed with an intersection over union of `0.900786`. After
+The first unet trained on the entire dataset performed with an intersection over union of `0.927125`. After
 hyperparameter
 optimization the metric could be improved to `0.951696`
 As a benchmark, the overlap between the wq image and the final mask image was calculated. The mean intersection over
