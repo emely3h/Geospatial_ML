@@ -132,25 +132,27 @@ true negative rate.
 
 ## Summary of the experiments
 
-model chosen in the beginning random, based on original model
-missing numbers
-
+I started with a u-net architecture very similar to
+the [original architecture](https://lmb.informatik.uni-freiburg.de/people/ronneber/u-net/) except that I used one
+convolutional layer less to make the training faster in the beginning.
 Experiment 1 explores the variance when training multiple models with the same configuration. To simplify the setup
 and get familiar with the libraries only a small subset of the entire dataset with overlapping tiles was used.
-Experiment 2 is similar to experiment 1 except for the dataset, as non-overlapping tiles were used.
+Experiment 2 is similar to experiment 1 except for the dataset, as non-overlapping tiles were used instead.
+
 In experiment 3 the entire dataset was used for the training. As the RAM capacity was not sufficient DataGenerators
 were used so that the data was loaded in batches into RAM. Three models were trained with slightly different
 training configurations. The training of model 0 was stopped to early which led to underfitting while the training
 of model 1 was too long which led to overfitting. Model 2 was trained with an adjusted early stopping rate (10
 instead of 5 as in model 1), adjusted callback that monitors validation accuracy and loss and a checkpoint callback
-which saves the model after the best performing epoch.
-The aim of notebook 4 and 5 was to explore variance in the training. Therefore each for overlapping and
-non-overlapping tiles 5 models were trained with the optimized configuration of experiment 3. As the variance was
-lower and the mean intersection over union was slighltly better for the non-overlapping dataset all further
-experiment continue with the non-overlapping dataset.
+which saves the model after the best performing epoch. The best performing model can make predictions with a mean
+intersection over union of 0.935624.
+The aim of notebook 4 and 5 was to explore variance in the training. Therefore, 5 models each for overlapping and
+non-overlapping tiles were trained with the optimized configuration of experiment 3. As the variance was
+lower and the mean intersection over union was slightly better for the non-overlapping dataset all further
+experiments continue with the non-overlapping dataset.
 
 The goal of the following experiments is to get familiar with hyperparameters, to find the optimal combination of
-hyper parameters. I split the hyper parameters into three different categories:
+hyperparameters. I split the hyperparameters into three different categories:
 
 Training Configuration
 
@@ -171,13 +173,22 @@ Overfitting avoidance
 
 My approach was to find a good training configuration first and then move on to optimize the unet architecture
 before experimenting with regularization methods.
-In experiment the early stopping callback was optimized to check the mean intersection over union and the loss
+In experiment 6 the early stopping callback was optimized to check the mean intersection over union and the loss
 instead of the accuracy.
 In experiment 7 different optimizers with different learning rates were tested. Given the resources AdamW performed
-best. At this point a good training configuration was found and I moved on to optimizing the unet architecture. In
-experiment 8 I tested different amounts of Conv2D layers with different amounts of filter sizes.
+best. The best model could perform with a jaccard index of 0.951696. At this point a good training configuration was
+found and I moved on to optimizing the unet architecture.
+In experiment 8 I tested different amounts of Conv2D layers with different amounts of filter sizes. Only the
+architecture with one convolutional layer less than the original performed better than the one I started with. The
+intersection over union could be improved to 0.95598.
 
 ## Final result
+
+The first unet trained on the entire dataset performed with an intersection over union of `0.900786`. After
+hyperparameter
+optimization the metric could be improved to `0.951696`
+As a benchmark, the overlap between the wq image and the final mask image was calculated. The mean intersection over
+union for the test data is `0.897474`.
 
 ## Working with google colab
 
